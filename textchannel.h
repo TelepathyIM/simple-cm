@@ -14,12 +14,15 @@
 #ifndef SIMPLECM_TEXTCHANNEL_H
 #define SIMPLECM_TEXTCHANNEL_H
 
+#include "simpleCm_export.h"
+
 #include <TelepathyQt/BaseChannel>
 
 class SimpleTextChannel;
+
 typedef Tp::SharedPtr<SimpleTextChannel> SimpleTextChannelPtr;
 
-class SimpleTextChannel : public Tp::BaseChannelTextType
+class SIMPLECM_EXPORT SimpleTextChannel : public Tp::BaseChannelTextType
 {
     Q_OBJECT
 public:

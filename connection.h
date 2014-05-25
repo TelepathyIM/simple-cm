@@ -14,10 +14,12 @@
 #ifndef SIMPLECM_CONNECTION_H
 #define SIMPLECM_CONNECTION_H
 
+#include "simpleCm_export.h"
+
 #include <TelepathyQt/BaseConnection>
 #include <TelepathyQt/BaseChannel>
 
-class SimpleConnection : public Tp::BaseConnection
+class SIMPLECM_EXPORT SimpleConnection : public Tp::BaseConnection
 {
     Q_OBJECT
 public:
