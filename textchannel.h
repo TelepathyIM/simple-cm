@@ -14,7 +14,7 @@
 #ifndef SIMPLECM_TEXTCHANNEL_H
 #define SIMPLECM_TEXTCHANNEL_H
 
-#include "simpleCm_export.h"
+#include "simplecm_export.h"
 
 #include <TelepathyQt/BaseChannel>
 

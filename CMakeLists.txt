@@ -1,4 +1,4 @@
-project(simpleCm)
+project(simplecm)
 
 cmake_minimum_required(VERSION 2.8)
 
@@ -25,23 +25,24 @@ include_directories(
 
 add_definitions(-DSIMPLECM_LIBRARY)
 
-set(simpleCm_HEADERS
+set(simplecm_HEADERS
     connection.h
     protocol.h
     textchannel.h
+    simplecm_export.h
 )
 
-set(simpleCm_SOURCES
+set(simplecm_SOURCES
     connection.cpp
     protocol.cpp
     textchannel.cpp
 )
 
-add_library(simpleCm STATIC ${simpleCm_SOURCES} ${simpleCm_HEADERS})
+add_library(simplecm STATIC ${simplecm_SOURCES} ${simplecm_HEADERS})
 
-set_target_properties(simpleCm PROPERTIES AUTOMOC TRUE)
+set_target_properties(simplecm PROPERTIES AUTOMOC TRUE)
 
-target_link_libraries(simpleCm
+target_link_libraries(simplecm
     ${QT_QTCORE_LIBRARY}
     ${QT_QTDBUS_LIBRARY}
     ${TELEPATHY_QT4_LIBRARIES}
@@ -49,14 +50,14 @@ target_link_libraries(simpleCm
 )
 
 install(
-    TARGETS simpleCm
+    TARGETS simplecm
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     COMPONENT Library
 )
 
 install(
-    FILES ${simpleCm_HEADERS}
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simpleCm
+    FILES ${simplecm_HEADERS}
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simplecm
     COMPONENT Devel
 )
 

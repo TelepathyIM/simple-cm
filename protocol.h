@@ -14,7 +14,7 @@
 #ifndef SIMPLECM_PROTOCOL_H
 #define SIMPLECM_PROTOCOL_H
 
-#include "simpleCm_export.h"
+#include "simplecm_export.h"
 
 #include <TelepathyQt/BaseProtocol>
 

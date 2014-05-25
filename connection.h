@@ -14,7 +14,7 @@
 #ifndef SIMPLECM_CONNECTION_H
 #define SIMPLECM_CONNECTION_H
 
-#include "simpleCm_export.h"
+#include "simplecm_export.h"
 
 #include <TelepathyQt/BaseConnection>
 #include <TelepathyQt/BaseChannel>
