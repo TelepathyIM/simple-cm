@@ -75,7 +75,7 @@ private:
     /* Maps a contact handle to its subscription state */
     QHash<uint, uint> m_contactsSubscription;
 
-    QString m_deviceId;
+    QString m_account;
 };
 
 #endif // SIMPLECM_CONNECTION_H

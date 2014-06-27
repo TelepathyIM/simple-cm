@@ -28,7 +28,7 @@ SimpleTextChannel::SimpleTextChannel(QObject *connection, Tp::BaseChannel *baseC
       m_connection(connection),
       m_identifier(identifier)
 {
-    QStringList supportedContentTypes = QStringList() << "text/plain";
+    QStringList supportedContentTypes = QStringList() << QLatin1String("text/plain");
     Tp::UIntList messageTypes = Tp::UIntList() << Tp::ChannelTextMessageTypeNormal;
 
     uint messagePartSupportFlags = 0;

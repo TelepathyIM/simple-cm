@@ -74,24 +74,24 @@ SimpleConnection::SimpleConnection(const QDBusConnection &dbusConnection, const 
     requestsIface = Tp::BaseConnectionRequestsInterface::create(this);
     /* Fill requestableChannelClasses */
     Tp::RequestableChannelClass text;
-    text.fixedProperties[TP_QT_IFACE_CHANNEL+".ChannelType"] = TP_QT_IFACE_CHANNEL_TYPE_TEXT;
-    text.fixedProperties[TP_QT_IFACE_CHANNEL+".TargetHandleType"]  = Tp::HandleTypeContact;
-    text.allowedProperties.append(TP_QT_IFACE_CHANNEL+".TargetHandle");
-    text.allowedProperties.append(TP_QT_IFACE_CHANNEL+".TargetID");
+    text.fixedProperties[TP_QT_IFACE_CHANNEL + QLatin1String(".ChannelType")] = TP_QT_IFACE_CHANNEL_TYPE_TEXT;
+    text.fixedProperties[TP_QT_IFACE_CHANNEL + QLatin1String(".TargetHandleType")]  = Tp::HandleTypeContact;
+    text.allowedProperties.append(TP_QT_IFACE_CHANNEL + QLatin1String(".TargetHandle"));
+    text.allowedProperties.append(TP_QT_IFACE_CHANNEL + QLatin1String(".TargetID"));
     requestsIface->requestableChannelClasses << text;
     plugInterface(Tp::AbstractConnectionInterfacePtr::dynamicCast(requestsIface));
 
     QString selfName = QLatin1String("SelfContact");
 
-    if (parameters.contains("self_name")) {
-        selfName = parameters.value("self_name").toString();
+    if (parameters.contains(QLatin1String("self_name"))) {
+        selfName = parameters.value(QLatin1String("self_name")).toString();
     }
 
-    if (parameters.contains("device_id")) {
-        m_deviceId = parameters.value("device_id").toString();
+    if (parameters.contains(QLatin1String("account"))) {
+        m_account = parameters.value(QLatin1String("account")).toString();
     }
 
-    setSelfHandle(addContact(selfName + "@kdeconnect_" + m_deviceId));
+    setSelfHandle(addContact(selfName + QLatin1String("@simplecm") + m_account));
 
     setConnectCallback(Tp::memFun(this, &SimpleConnection::connect));
     setInspectHandlesCallback(Tp::memFun(this, &SimpleConnection::inspectHandles));
@@ -111,8 +111,8 @@ void SimpleConnection::connect(Tp::DBusError *error)
 
     Tp::SimpleContactPresences presences;
     Tp::SimplePresence presence;
-    presence.status = "available";
-    presence.statusMessage = "";
+    presence.status = QLatin1String("available");
+    presence.statusMessage = QString();
     presence.type = Tp::ConnectionPresenceTypeAvailable;
     presences[selfHandle()] = presence;
     simplePresenceIface->setPresences(presences);
@@ -128,7 +128,7 @@ QStringList SimpleConnection::inspectHandles(uint handleType, const Tp::UIntList
     qDebug() << Q_FUNC_INFO;
 
     if (handleType != Tp::HandleTypeContact) {
-        error->set(TP_QT_ERROR_INVALID_ARGUMENT, "Unsupported handle type");
+        error->set(TP_QT_ERROR_INVALID_ARGUMENT, QLatin1String("Unsupported handle type"));
         return QStringList();
     }
 
@@ -152,7 +152,7 @@ Tp::BaseChannelPtr SimpleConnection::createChannel(const QString &channelType, u
              << " " << targetHandle;
 
     if ((targetHandleType != Tp::HandleTypeContact) || (targetHandle == 0)) {
-          error->set(TP_QT_ERROR_INVALID_HANDLE, "createChannel error");
+          error->set(TP_QT_ERROR_INVALID_HANDLE, QLatin1String("createChannel error"));
           return Tp::BaseChannelPtr();
     }
 
@@ -176,7 +176,7 @@ Tp::UIntList SimpleConnection::requestHandles(uint handleType, const QStringList
     Tp::UIntList result;
 
     if (handleType != Tp::HandleTypeContact) {
-        error->set(TP_QT_ERROR_INVALID_ARGUMENT, "SimpleConnection::requestHandles - Handle Type unknown");
+        error->set(TP_QT_ERROR_INVALID_ARGUMENT, QLatin1String("SimpleConnection::requestHandles - Handle Type unknown"));
         return result;
     }
 
@@ -203,10 +203,10 @@ Tp::ContactAttributesMap SimpleConnection::getContactListAttributes(const QStrin
             continue;
         }
         QVariantMap attributes;
-        attributes["org.freedesktop.Telepathy.Connection/contact-id"] = m_handles.value(handle);
-        attributes["org.freedesktop.Telepathy.Connection.Interface.ContactList/subscribe"] = Tp::SubscriptionStateYes;
-        attributes["org.freedesktop.Telepathy.Connection.Interface.ContactList/publish"] = Tp::SubscriptionStateYes;
-        attributes["org.freedesktop.Telepathy.Connection.Interface.SimplePresence/presence"] = QVariant::fromValue(getPresence(handle));
+        attributes[TP_QT_IFACE_CONNECTION + QLatin1String("/contact-id")] = m_handles.value(handle);
+        attributes[TP_QT_IFACE_CONNECTION_INTERFACE_CONTACT_LIST + QLatin1String("/subscribe")] = Tp::SubscriptionStateYes;
+        attributes[TP_QT_IFACE_CONNECTION_INTERFACE_CONTACT_LIST + QLatin1String("/publish")] = Tp::SubscriptionStateYes;
+        attributes[TP_QT_IFACE_CONNECTION_INTERFACE_SIMPLE_PRESENCE + QLatin1String("/presence")] = QVariant::fromValue(getPresence(handle));
         contactAttributes[handle] = attributes;
     }
     return contactAttributes;
@@ -223,12 +223,12 @@ Tp::ContactAttributesMap SimpleConnection::getContactAttributes(const Tp::UIntLi
     foreach (const uint handle, handles) {
         if (m_handles.contains(handle)){
             QVariantMap attributes;
-            attributes["org.freedesktop.Telepathy.Connection/contact-id"] = m_handles.value(handle);
+            attributes[TP_QT_IFACE_CONNECTION + QLatin1String("/contact-id")] = m_handles.value(handle);
 
-            if (handle != selfHandle() && interfaces.contains("org.freedesktop.Telepathy.Connection.Interface.ContactList")) {
-                attributes["org.freedesktop.Telepathy.Connection.Interface.ContactList/subscribe"] = Tp::SubscriptionStateYes;
-                attributes["org.freedesktop.Telepathy.Connection.Interface.ContactList/publish"] = Tp::SubscriptionStateYes;
-                attributes["org.freedesktop.Telepathy.Connection.Interface.SimplePresence/presence"] = QVariant::fromValue(getPresence(handle));
+            if (handle != selfHandle() && interfaces.contains(TP_QT_IFACE_CONNECTION_INTERFACE_CONTACT_LIST)) {
+                attributes[TP_QT_IFACE_CONNECTION_INTERFACE_CONTACT_LIST + QLatin1String("/subscribe")] = Tp::SubscriptionStateYes;
+                attributes[TP_QT_IFACE_CONNECTION_INTERFACE_CONTACT_LIST + QLatin1String("/publish")] = Tp::SubscriptionStateYes;
+                attributes[TP_QT_IFACE_CONNECTION_INTERFACE_SIMPLE_PRESENCE + QLatin1String("/presence")] = QVariant::fromValue(getPresence(handle));
             }
             contactAttributes[handle] = attributes;
         }
@@ -276,7 +276,7 @@ uint SimpleConnection::addContacts(const QStringList &identifiers)
         newHandles << handle;
     }
 
-    setPresenceState(newHandles, "unknown");
+    setPresenceState(newHandles, QLatin1String("unknown"));
     setSubscriptionState(identifiers, newHandles, Tp::SubscriptionStateUnknown);
 
     return handle;
@@ -318,7 +318,7 @@ void SimpleConnection::setSubscriptionState(const QStringList &identifiers, cons
     for(int i = 0; i < identifiers.size(); ++i) {
         Tp::ContactSubscriptions change;
         change.publish = Tp::SubscriptionStateYes;
-        change.publishRequest = "";
+        change.publishRequest = QString();
         change.subscribe = state;
         changes[handles[i]] = change;
         identifiersMap[handles[i]] = identifiers[i];
@@ -357,17 +357,16 @@ void SimpleConnection::receiveMessage(const QString &sender, const QString &mess
 
     Tp::MessagePartList body;
     Tp::MessagePart text;
-    text["content-type"]            = QDBusVariant("text/plain");
-    text["content"]                 = QDBusVariant(message);
+    text[QLatin1String("content-type")] = QDBusVariant(QLatin1String("text/plain"));
+    text[QLatin1String("content")]      = QDBusVariant(message);
     body << text;
 
     Tp::MessagePartList partList;
     Tp::MessagePart header;
-    header["message-received"]      = QDBusVariant(timestamp);
-    header["message-sender"]        = QDBusVariant(senderHandle);
-    header["message-sender-id"]     = QDBusVariant(sender);
-    //header["sender-nickname"]       = QDBusVariant(pushName);
-    header["message-type"]          = QDBusVariant(Tp::ChannelTextMessageTypeNormal);
+    header[QLatin1String("message-received")]  = QDBusVariant(timestamp);
+    header[QLatin1String("message-sender")]    = QDBusVariant(senderHandle);
+    header[QLatin1String("message-sender-id")] = QDBusVariant(sender);
+    header[QLatin1String("message-type")]      = QDBusVariant(Tp::ChannelTextMessageTypeNormal);
 
     partList << header << body;
     textChannel->addReceivedMessage(partList);
