@@ -47,6 +47,10 @@ public:
 
 public slots:
     void receiveMessage(const QString &sender, const QString &message);
+
+    uint addContact(const QString &identifier);
+    uint addContacts(const QStringList &identifiers);
+
     void setContactList(const QStringList &identifiers);
     void setContactPresence(const QString &identifier, const QString &presence);
 
@@ -55,8 +59,6 @@ signals:
 
 private:
     uint getHandle(const QString &identifier) const;
-    uint addContact(const QString &identifier);
-    uint addContacts(const QStringList &identifiers);
 
     void setPresenceState(const QList<uint> &handles, const QString &status);
     void setSubscriptionState(const QStringList &identifiers, const QList<uint> &handles, uint state);

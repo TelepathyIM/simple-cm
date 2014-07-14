@@ -34,6 +34,7 @@ public:
 
 public slots:
     void sendMessage(QString sender, QString message);
+    void addContact(const QString &contact);
     void setContactList(QStringList list);
     void setContactPresence(const QString &identifier, const QString &presence);
 
@@ -42,6 +43,7 @@ signals:
 
     void newMessageToBeSent(QString sender, QString message);
     void contactsListChanged(QStringList list);
+    void addContactRequested(const QString &contact);
     void vCardListChanged(QStringList list);
 
     void contactPresenceChanged(const QString &identifier, const QString &presence);

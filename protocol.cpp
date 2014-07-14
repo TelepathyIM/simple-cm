@@ -63,6 +63,11 @@ void SimpleProtocol::sendMessage(QString sender, QString message)
     emit newMessageToBeSent(sender, message);
 }
 
+void SimpleProtocol::addContact(const QString &contact)
+{
+    emit addContactRequested(contact);
+}
+
 void SimpleProtocol::setContactList(QStringList list)
 {
     emit contactsListChanged(list);
@@ -77,6 +82,7 @@ void SimpleProtocol::connectionCreatedEvent(SimpleConnection *newConnection)
 {
     connect(this, SIGNAL(newMessageToBeSent(QString,QString)), newConnection, SLOT(receiveMessage(QString,QString)));
     connect(this, SIGNAL(contactsListChanged(QStringList))   , newConnection, SLOT(setContactList(QStringList)));
+    connect(this, SIGNAL(addContactRequested(QString))       , newConnection, SLOT(addContact(QString)));
     connect(this, SIGNAL(contactPresenceChanged(QString,QString)), newConnection, SLOT(setContactPresence(QString,QString)));
 
     connect(newConnection, SIGNAL(messageReceived(QString,QString)), SIGNAL(messageReceived(QString,QString)));
