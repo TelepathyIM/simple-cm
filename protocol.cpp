@@ -27,8 +27,7 @@ SimpleProtocol::SimpleProtocol(const QDBusConnection &dbusConnection, const QStr
     : BaseProtocol(dbusConnection, name)
 {
     setParameters(Tp::ProtocolParameterList()
-                  << Tp::ProtocolParameter(QLatin1String("account"), QLatin1String("s"), Tp::ConnMgrParamFlagRequired)
-                  << Tp::ProtocolParameter(QLatin1String("self_name"), QLatin1String("s"), 0));
+                  << Tp::ProtocolParameter(QLatin1String("self_id"), QLatin1String("s"), Tp::ConnMgrParamFlagRequired));
 
     setRequestableChannelClasses(Tp::RequestableChannelClassSpecList() << Tp::RequestableChannelClassSpec::textChat());
 

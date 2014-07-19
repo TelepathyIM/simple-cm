@@ -81,17 +81,11 @@ SimpleConnection::SimpleConnection(const QDBusConnection &dbusConnection, const 
     requestsIface->requestableChannelClasses << text;
     plugInterface(Tp::AbstractConnectionInterfacePtr::dynamicCast(requestsIface));
 
-    QString selfName = QLatin1String("SelfContact");
-
-    if (parameters.contains(QLatin1String("self_name"))) {
-        selfName = parameters.value(QLatin1String("self_name")).toString();
+    if (parameters.contains(QLatin1String("self_id"))) {
+        m_selfId = parameters.value(QLatin1String("self_id")).toString();
     }
 
-    if (parameters.contains(QLatin1String("account"))) {
-        m_account = parameters.value(QLatin1String("account")).toString();
-    }
-
-    setSelfHandle(addContact(selfName + QLatin1String("@simplecm") + m_account));
+    setSelfHandle(addContact(m_selfId));
 
     setConnectCallback(Tp::memFun(this, &SimpleConnection::connect));
     setInspectHandlesCallback(Tp::memFun(this, &SimpleConnection::inspectHandles));
