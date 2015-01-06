@@ -26,15 +26,16 @@ class SIMPLECM_EXPORT SimpleTextChannel : public Tp::BaseChannelTextType
 {
     Q_OBJECT
 public:
-    static SimpleTextChannelPtr create(QObject *connection, Tp::BaseChannel *baseChannel, uint targetHandle, const QString &identifier);
+    static SimpleTextChannelPtr create(Tp::BaseChannel *baseChannel, uint targetHandle, const QString &identifier);
     virtual ~SimpleTextChannel();
 
     QString sendMessageCallback(const Tp::MessagePartList &messageParts, uint flags, Tp::DBusError *error);
 
-private:
-    SimpleTextChannel(QObject *connection, Tp::BaseChannel *baseChannel, uint targetHandle, const QString &identifier);
+signals:
+    void messageReceived(const QString &identifier, const QString &content);
 
-    QObject *m_connection;
+private:
+    SimpleTextChannel(Tp::BaseChannel *baseChannel, uint targetHandle, const QString &identifier);
 
     QString m_identifier;
 

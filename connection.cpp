@@ -155,9 +155,10 @@ Tp::BaseChannelPtr SimpleConnection::createChannel(const QString &channelType, u
     QString identifier = m_handles.value(targetHandle);
 
     if (channelType == TP_QT_IFACE_CHANNEL_TYPE_TEXT) {
-        SimpleTextChannelPtr textType = SimpleTextChannel::create(this, baseChannel.data(), targetHandle, identifier);
+        SimpleTextChannelPtr textType = SimpleTextChannel::create(baseChannel.data(), targetHandle, identifier);
         qDebug() << "Text interface is called " << textType->interfaceName();
         baseChannel->plugInterface(Tp::AbstractChannelInterfacePtr::dynamicCast(textType));
+        connect(textType.data(), SIGNAL(messageReceived(QString,QString)), SIGNAL(messageReceived(QString,QString)));
     }
 
     return baseChannel;

@@ -23,9 +23,8 @@
 
 #include <QDebug>
 
-SimpleTextChannel::SimpleTextChannel(QObject *connection, Tp::BaseChannel *baseChannel, uint targetHandle, const QString &identifier)
+SimpleTextChannel::SimpleTextChannel(Tp::BaseChannel *baseChannel, uint targetHandle, const QString &identifier)
     : Tp::BaseChannelTextType(baseChannel),
-      m_connection(connection),
       m_identifier(identifier)
 {
     QStringList supportedContentTypes = QStringList() << QLatin1String("text/plain");
@@ -45,9 +44,9 @@ SimpleTextChannel::SimpleTextChannel(QObject *connection, Tp::BaseChannel *baseC
     m_messagesIface->setSendMessageCallback(Tp::memFun(this, &SimpleTextChannel::sendMessageCallback));
 }
 
-SimpleTextChannelPtr SimpleTextChannel::create(QObject *connection, Tp::BaseChannel *baseChannel, uint targetHandle, const QString &identifier)
+SimpleTextChannelPtr SimpleTextChannel::create(Tp::BaseChannel *baseChannel, uint targetHandle, const QString &identifier)
 {
-    return SimpleTextChannelPtr(new SimpleTextChannel(connection, baseChannel, targetHandle, identifier));
+    return SimpleTextChannelPtr(new SimpleTextChannel(baseChannel, targetHandle, identifier));
 }
 
 SimpleTextChannel::~SimpleTextChannel()
@@ -67,7 +66,7 @@ QString SimpleTextChannel::sendMessageCallback(const Tp::MessagePartList &messag
         }
     }
 
-    QMetaObject::invokeMethod(m_connection, "messageReceived", Q_ARG(QString, m_identifier), Q_ARG(QString, content));
+    emit messageReceived(m_identifier, content);
 
     return QString();
 }
