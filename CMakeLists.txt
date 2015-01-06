@@ -8,20 +8,21 @@ set(SIMPLECM_VERSION_PATCH 0)
 
 set(SIMPLECM_VERSION "${SIMPLECM_VERSION_MAJOR}.${SIMPLECM_VERSION_MINOR}.${SIMPLECM_VERSION_PATCH}")
 
-find_package(TelepathyQt4 0.9.2.1 REQUIRED)
+if (USE_QT4)
+    set(QT_VERSION_MAJOR "4")
+    find_package(TelepathyQt4 0.9.5 REQUIRED)
+    find_package(TelepathyQt4Service 0.9.5 REQUIRED)
 
-find_package(TelepathyQt4 0.9.2.1 REQUIRED)
-find_package(TelepathyQt4Service 0.9.2.1 REQUIRED)
+    find_package(Qt4 4.6.0 REQUIRED QtCore QtDBus)
+else()
+    set(QT_VERSION_MAJOR "5")
+    find_package(TelepathyQt5 0.9.5 REQUIRED)
+    find_package(TelepathyQt5Service 0.9.5 REQUIRED)
 
-find_package(Qt4 REQUIRED)
+    find_package(Qt5 REQUIRED COMPONENTS Core DBus)
+endif()
 
 include(GNUInstallDirs)
-
-include_directories(
-    ${QT_INCLUDES}
-    ${TELEPATHY_QT4_INCLUDE_DIR}
-    ${CMAKE_SOURCE_DIR}
-)
 
 add_definitions(-DSIMPLECM_LIBRARY)
 
@@ -38,19 +39,36 @@ set(simplecm_SOURCES
     textchannel.cpp
 )
 
-add_library(simplecm STATIC ${simplecm_SOURCES} ${simplecm_HEADERS})
+add_library(simplecm-qt${QT_VERSION_MAJOR} STATIC ${simplecm_SOURCES} ${simplecm_HEADERS})
 
-set_target_properties(simplecm PROPERTIES AUTOMOC TRUE)
+if (USE_QT4)
+    target_include_directories(simplecm-qt${QT_VERSION_MAJOR} PRIVATE
+        ${QT_INCLUDES}
+        ${TELEPATHY_QT4_INCLUDE_DIR}
+    )
+    target_link_libraries(simplecm-qt${QT_VERSION_MAJOR}
+        ${QT_QTCORE_LIBRARY}
+        ${QT_QTDBUS_LIBRARY}
+        ${TELEPATHY_QT4_LIBRARIES}
+        ${TELEPATHY_QT4_SERVICE_LIBRARIES}
+    )
+else()
+    target_include_directories(simplecm-qt${QT_VERSION_MAJOR} PRIVATE
+        ${TELEPATHY_QT5_INCLUDE_DIR}
+    )
 
-target_link_libraries(simplecm
-    ${QT_QTCORE_LIBRARY}
-    ${QT_QTDBUS_LIBRARY}
-    ${TELEPATHY_QT4_LIBRARIES}
-    ${TELEPATHY_QT4_SERVICE_LIBRARIES}
-)
+    target_link_libraries(simplecm-qt${QT_VERSION_MAJOR}
+        Qt5::Core
+        Qt5::DBus
+        ${TELEPATHY_QT5_LIBRARIES}
+        ${TELEPATHY_QT5_SERVICE_LIBRARIES}
+    )
+endif()
+
+set_target_properties(simplecm-qt${QT_VERSION_MAJOR} PROPERTIES AUTOMOC TRUE)
 
 install(
-    TARGETS simplecm
+    TARGETS simplecm-qt${QT_VERSION_MAJOR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     COMPONENT Library
 )
