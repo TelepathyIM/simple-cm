@@ -87,7 +87,7 @@ SimpleConnection::SimpleConnection(const QDBusConnection &dbusConnection, const 
 
     setSelfHandle(addContact(m_selfId));
 
-    setConnectCallback(Tp::memFun(this, &SimpleConnection::connect));
+    setConnectCallback(Tp::memFun(this, &SimpleConnection::connectCallback));
     setInspectHandlesCallback(Tp::memFun(this, &SimpleConnection::inspectHandles));
     setCreateChannelCallback(Tp::memFun(this, &SimpleConnection::createChannel));
     setRequestHandlesCallback(Tp::memFun(this, &SimpleConnection::requestHandles));
@@ -97,7 +97,7 @@ SimpleConnection::~SimpleConnection()
 {
 }
 
-void SimpleConnection::connect(Tp::DBusError *error)
+void SimpleConnection::connectCallback(Tp::DBusError *error)
 {
     setStatus(Tp::ConnectionStatusConnecting, Tp::ConnectionStatusReasonRequested);
 
