@@ -32,8 +32,8 @@ public:
 
     void connectCallback(Tp::DBusError *error);
     QStringList inspectHandles(uint handleType, const Tp::UIntList &handles, Tp::DBusError *error);
-    Tp::BaseChannelPtr createChannel(const QString &channelType, uint targetHandleType,
-                                         uint targetHandle, Tp::DBusError *error);
+
+    Tp::BaseChannelPtr createChannel(const QVariantMap &request, Tp::DBusError *error);
 
     Tp::UIntList requestHandles(uint handleType, const QStringList &identifiers, Tp::DBusError *error);
 
@@ -46,7 +46,7 @@ public:
     uint ensureContact(const QString &identifier);
 
 public slots:
-    void receiveMessage(const QString &sender, const QString &message);
+    void receiveMessage(const QString &identifier, const QString &message);
 
     uint addContact(const QString &identifier);
     uint addContacts(const QStringList &identifiers);

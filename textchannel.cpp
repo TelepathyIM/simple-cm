@@ -23,9 +23,10 @@
 
 #include <QDebug>
 
-SimpleTextChannel::SimpleTextChannel(Tp::BaseChannel *baseChannel, uint targetHandle, const QString &identifier)
+SimpleTextChannel::SimpleTextChannel(Tp::BaseChannel *baseChannel)
     : Tp::BaseChannelTextType(baseChannel),
-      m_identifier(identifier)
+      m_targetHandle(baseChannel->targetHandle()),
+      m_targetID(baseChannel->targetID())
 {
     QStringList supportedContentTypes = QStringList() << QLatin1String("text/plain");
     Tp::UIntList messageTypes = Tp::UIntList() << Tp::ChannelTextMessageTypeNormal;
@@ -44,9 +45,9 @@ SimpleTextChannel::SimpleTextChannel(Tp::BaseChannel *baseChannel, uint targetHa
     m_messagesIface->setSendMessageCallback(Tp::memFun(this, &SimpleTextChannel::sendMessageCallback));
 }
 
-SimpleTextChannelPtr SimpleTextChannel::create(Tp::BaseChannel *baseChannel, uint targetHandle, const QString &identifier)
+SimpleTextChannelPtr SimpleTextChannel::create(Tp::BaseChannel *baseChannel)
 {
-    return SimpleTextChannelPtr(new SimpleTextChannel(baseChannel, targetHandle, identifier));
+    return SimpleTextChannelPtr(new SimpleTextChannel(baseChannel));
 }
 
 SimpleTextChannel::~SimpleTextChannel()
@@ -66,7 +67,28 @@ QString SimpleTextChannel::sendMessageCallback(const Tp::MessagePartList &messag
         }
     }
 
-    emit messageReceived(m_identifier, content);
+    emit messageReceived(m_targetID, content);
 
     return QString();
+}
+
+void SimpleTextChannel::whenMessageReceived(const QString &message)
+{
+    uint timestamp = QDateTime::currentMSecsSinceEpoch() / 1000;
+
+    Tp::MessagePartList body;
+    Tp::MessagePart text;
+    text[QLatin1String("content-type")] = QDBusVariant(QLatin1String("text/plain"));
+    text[QLatin1String("content")]      = QDBusVariant(message);
+    body << text;
+
+    Tp::MessagePartList partList;
+    Tp::MessagePart header;
+    header[QLatin1String("message-received")]  = QDBusVariant(timestamp);
+    header[QLatin1String("message-sender")]    = QDBusVariant(m_targetHandle);
+    header[QLatin1String("message-sender-id")] = QDBusVariant(m_targetID);
+    header[QLatin1String("message-type")]      = QDBusVariant(Tp::ChannelTextMessageTypeNormal);
+
+    partList << header << body;
+    addReceivedMessage(partList);
 }

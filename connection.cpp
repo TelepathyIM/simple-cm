@@ -139,26 +139,66 @@ QStringList SimpleConnection::inspectHandles(uint handleType, const Tp::UIntList
     return result;
 }
 
-Tp::BaseChannelPtr SimpleConnection::createChannel(const QString &channelType, uint targetHandleType, uint targetHandle, Tp::DBusError *error)
+Tp::BaseChannelPtr SimpleConnection::createChannel(const QVariantMap &request, Tp::DBusError *error)
 {
-    qDebug() << "SimpleConnection::createChannel " << channelType
-             << " " << targetHandleType
-             << " " << targetHandle;
+    const QString channelType = request.value(TP_QT_IFACE_CHANNEL + QLatin1String(".ChannelType")).toString();
 
-    if ((targetHandleType != Tp::HandleTypeContact) || (targetHandle == 0)) {
-          error->set(TP_QT_ERROR_INVALID_HANDLE, QLatin1String("createChannel error"));
-          return Tp::BaseChannelPtr();
+    uint targetHandleType = request.value(TP_QT_IFACE_CHANNEL + QLatin1String(".TargetHandleType")).toUInt();
+    uint targetHandle = 0;
+    QString targetID;
+
+    switch (targetHandleType) {
+    case Tp::HandleTypeContact:
+        if (request.contains(TP_QT_IFACE_CHANNEL + QLatin1String(".TargetHandle"))) {
+            targetHandle = request.value(TP_QT_IFACE_CHANNEL + QLatin1String(".TargetHandle")).toUInt();
+            targetID = m_handles.value(targetHandle);
+        } else if (request.contains(TP_QT_IFACE_CHANNEL + QLatin1String(".TargetID"))) {
+            targetID = request.value(TP_QT_IFACE_CHANNEL + QLatin1String(".TargetID")).toString();
+            targetHandle = ensureContact(targetID);
+        }
+        break;
+    default:
+        break;
     }
 
-    Tp::BaseChannelPtr baseChannel = Tp::BaseChannel::create(this, channelType, targetHandle, targetHandleType);
+    // Looks like there is no any case for InitiatorID other than selfID
+    uint initiatorHandle = 0;
 
-    QString identifier = m_handles.value(targetHandle);
+    if (targetHandleType == Tp::HandleTypeContact) {
+        initiatorHandle = request.value(TP_QT_IFACE_CHANNEL + QLatin1String(".InitiatorHandle"), selfHandle()).toUInt();
+    }
+
+    qDebug() << "SimpleConnection::createChannel " << channelType
+             << " " << targetHandleType
+             << " " << targetHandle
+             << " " << request;
+
+    switch (targetHandleType) {
+    case Tp::HandleTypeContact:
+        break;
+    default:
+        if (error) {
+            error->set(TP_QT_ERROR_INVALID_ARGUMENT, QLatin1String("Unknown target handle type"));
+        }
+        return Tp::BaseChannelPtr();
+        break;
+    }
+
+    if (!targetHandle) {
+        if (error) {
+            error->set(TP_QT_ERROR_INVALID_HANDLE, QLatin1String("Target handle is unknown."));
+        }
+        return Tp::BaseChannelPtr();
+    }
+
+    Tp::BaseChannelPtr baseChannel = Tp::BaseChannel::create(this, channelType, Tp::HandleType(targetHandleType), targetHandle);
+    baseChannel->setTargetID(targetID);
+    baseChannel->setInitiatorHandle(initiatorHandle);
 
     if (channelType == TP_QT_IFACE_CHANNEL_TYPE_TEXT) {
-        SimpleTextChannelPtr textType = SimpleTextChannel::create(baseChannel.data(), targetHandle, identifier);
-        qDebug() << "Text interface is called " << textType->interfaceName();
-        baseChannel->plugInterface(Tp::AbstractChannelInterfacePtr::dynamicCast(textType));
-        connect(textType.data(), SIGNAL(messageReceived(QString,QString)), SIGNAL(messageReceived(QString,QString)));
+        SimpleTextChannelPtr textChannel = SimpleTextChannel::create(baseChannel.data());
+        baseChannel->plugInterface(Tp::AbstractChannelInterfacePtr::dynamicCast(textChannel));
+        connect(textChannel.data(), SIGNAL(messageReceived(QString,QString)), SIGNAL(messageReceived(QString,QString)));
     }
 
     return baseChannel;
@@ -176,13 +216,8 @@ Tp::UIntList SimpleConnection::requestHandles(uint handleType, const QStringList
     }
 
     foreach(const QString &identify, identifiers) {
-         uint handle = m_handles.key(identify, 0);
-         if (handle) {
-             result.append(handle);
-         } else {
-             result.append(addContact(identify));
-         }
-     }
+        result.append(ensureContact(identify));
+    }
 
     return result;
 }
@@ -327,47 +362,35 @@ void SimpleConnection::setSubscriptionState(const QStringList &identifiers, cons
 }
 
 /* Receive message from someone to ourself */
-void SimpleConnection::receiveMessage(const QString &sender, const QString &message)
+void SimpleConnection::receiveMessage(const QString &identifier, const QString &message)
 {
-    uint senderHandle, targetHandle;
+    uint initiatorHandle, targetHandle;
 
-    Tp::HandleType handleType = Tp::HandleTypeContact;
-    senderHandle = targetHandle = ensureContact(sender);
+    initiatorHandle = targetHandle = ensureContact(identifier);
 
-    //TODO: initiator should be group creator
     Tp::DBusError error;
     bool yours;
-    Tp::BaseChannelPtr channel = ensureChannel(TP_QT_IFACE_CHANNEL_TYPE_TEXT, handleType, targetHandle, yours,
-                                           senderHandle,
-                                           false, &error);
+
+    QVariantMap request;
+    request[TP_QT_IFACE_CHANNEL + QLatin1String(".ChannelType")] = TP_QT_IFACE_CHANNEL_TYPE_TEXT;
+    request[TP_QT_IFACE_CHANNEL + QLatin1String(".TargetHandle")] = targetHandle;
+    request[TP_QT_IFACE_CHANNEL + QLatin1String(".TargetHandleType")] = Tp::HandleTypeContact;
+    request[TP_QT_IFACE_CHANNEL + QLatin1String(".InitiatorHandle")] = initiatorHandle;
+
+    Tp::BaseChannelPtr channel = ensureChannel(request, yours, /* suppressHandler */ false, &error);
     if (error.isValid()) {
-        qWarning() << "ensureChannel failed:" << error.name() << " " << error.message();
+        qWarning() << Q_FUNC_INFO << "ensureChannel failed:" << error.name() << " " << error.message();
         return;
     }
 
-    Tp::BaseChannelTextTypePtr textChannel = Tp::BaseChannelTextTypePtr::dynamicCast(channel->interface(TP_QT_IFACE_CHANNEL_TYPE_TEXT));
+    SimpleTextChannelPtr textChannel = SimpleTextChannelPtr::dynamicCast(channel->interface(TP_QT_IFACE_CHANNEL_TYPE_TEXT));
+
     if (!textChannel) {
-        qDebug() << "Error, channel is not a textChannel??";
+        qDebug() << Q_FUNC_INFO << "Error: channel is not a SimpleTextChannel?";
         return;
     }
 
-    uint timestamp = QDateTime::currentMSecsSinceEpoch() / 1000;
-
-    Tp::MessagePartList body;
-    Tp::MessagePart text;
-    text[QLatin1String("content-type")] = QDBusVariant(QLatin1String("text/plain"));
-    text[QLatin1String("content")]      = QDBusVariant(message);
-    body << text;
-
-    Tp::MessagePartList partList;
-    Tp::MessagePart header;
-    header[QLatin1String("message-received")]  = QDBusVariant(timestamp);
-    header[QLatin1String("message-sender")]    = QDBusVariant(senderHandle);
-    header[QLatin1String("message-sender-id")] = QDBusVariant(sender);
-    header[QLatin1String("message-type")]      = QDBusVariant(Tp::ChannelTextMessageTypeNormal);
-
-    partList << header << body;
-    textChannel->addReceivedMessage(partList);
+    textChannel->whenMessageReceived(message);
 }
 
 void SimpleConnection::setContactList(const QStringList &identifiers)
@@ -401,11 +424,5 @@ void SimpleConnection::setContactPresence(const QString &identifier, const QStri
 
 uint SimpleConnection::getHandle(const QString &identifier) const
 {
-    foreach (uint key, m_handles.keys()) {
-        if (m_handles.value(key) == identifier) {
-            return key;
-        }
-    }
-
-    return 0;
+    return m_handles.key(identifier, 0);
 }

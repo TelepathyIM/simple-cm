@@ -3,23 +3,21 @@ project(simplecm)
 cmake_minimum_required(VERSION 2.8)
 
 set(SIMPLECM_VERSION_MAJOR 0)
-set(SIMPLECM_VERSION_MINOR 1)
+set(SIMPLECM_VERSION_MINOR 2)
 set(SIMPLECM_VERSION_PATCH 0)
 
 set(SIMPLECM_VERSION "${SIMPLECM_VERSION_MAJOR}.${SIMPLECM_VERSION_MINOR}.${SIMPLECM_VERSION_PATCH}")
 
 if (USE_QT4)
     set(QT_VERSION_MAJOR "4")
-    find_package(TelepathyQt4 0.9.5 REQUIRED)
-    find_package(TelepathyQt4Service 0.9.5 REQUIRED)
-
     find_package(Qt4 4.6.0 REQUIRED QtCore QtDBus)
+    find_package(TelepathyQt4 0.9.6 REQUIRED)
+    find_package(TelepathyQt4Service 0.9.6 REQUIRED)
 else()
     set(QT_VERSION_MAJOR "5")
-    find_package(TelepathyQt5 0.9.5 REQUIRED)
-    find_package(TelepathyQt5Service 0.9.5 REQUIRED)
-
     find_package(Qt5 REQUIRED COMPONENTS Core DBus)
+    find_package(TelepathyQt5 0.9.6 REQUIRED)
+    find_package(TelepathyQt5Service 0.9.6 REQUIRED)
 endif()
 
 include(GNUInstallDirs)
