@@ -67,12 +67,12 @@ QString SimpleTextChannel::sendMessageCallback(const Tp::MessagePartList &messag
         }
     }
 
-    emit messageReceived(m_targetID, content);
+    emit sendMessage(m_targetID, content);
 
     return QString();
 }
 
-void SimpleTextChannel::whenMessageReceived(const QString &message)
+void SimpleTextChannel::addIncomingMessage(const QString &message)
 {
     uint timestamp = QDateTime::currentMSecsSinceEpoch() / 1000;
 

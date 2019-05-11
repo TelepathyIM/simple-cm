@@ -53,17 +53,29 @@ void MainWindow::on_registerButton_clicked(bool checked)
         m_protocol->setIconName(ui->iconEdit->text());
         m_protocol->setVCardField(ui->vcardField->text());
 
-        connect(m_protocol, SIGNAL(messageReceived(QString,QString)), SLOT(whenMessage(QString,QString)));
+        connect(m_protocol, &SimpleProtocol::clientSendMessage, this, &MainWindow::addMessageFromSelfContact);
 
         m_contactsModel->setProtocol(m_protocol);
 
         cm->addProtocol(proto);
         cm->registerObject();
     } else {
-        proto->deleteLater();
-        cm->deleteLater();
+        cm.reset();
+        proto.reset();
         m_protocol = 0;
     }
+}
+
+void MainWindow::on_addContactButton_clicked()
+{
+    QString contact = ui->addContactNameLineEdit->text();
+    if (contact.isEmpty()) {
+        return;
+    }
+
+    m_protocol->addContact(contact);
+    m_contactsModel->ensureContact(contact);
+    ui->addContactNameLineEdit->clear();
 }
 
 void MainWindow::on_sendMessageButton_clicked()
@@ -77,39 +89,30 @@ void MainWindow::on_sendMessageButton_clicked()
 
     ui->messageEdit->clear();
 
-    whenMessage(sender, message, /* fromSelfcontact */ false /* Here we send message from someone to ourself */ );
+    addMessage(sender, message);
 
-    m_protocol->sendMessage(sender, message);
+    m_protocol->addMessage(sender, message);
 }
 
-void MainWindow::whenMessage(QString sender, QString message, bool fromSelfcontact)
+void MainWindow::addMessageFromSelfContact(QString target, QString message)
+{
+    m_contactsModel->ensureContact(target);
+
+    if (target == ui->senderName->text()) {
+        ui->messagesLog->appendPlainText(">" + message);
+    }
+
+    ui->allMessagesLog->appendPlainText("Message to " + target + "\n");
+    ui->allMessagesLog->appendPlainText(message);
+}
+
+void MainWindow::addMessage(QString sender, QString message)
 {
     m_contactsModel->ensureContact(sender);
 
     if (sender == ui->senderName->text()) {
-        if (fromSelfcontact) {
-            ui->messagesLog->appendPlainText(">" + message);
-        } else {
-            ui->messagesLog->appendPlainText("<" + message);
-        }
+        ui->messagesLog->appendPlainText("<" + message);
     }
-
-    if (fromSelfcontact) {
-        ui->allMessagesLog->appendPlainText("Message to " + sender + "\n");
-    } else {
-        ui->allMessagesLog->appendPlainText("Message from " + sender + "\n");
-    }
+    ui->allMessagesLog->appendPlainText("Message from " + sender + "\n");
     ui->allMessagesLog->appendPlainText(message);
-}
-
-void MainWindow::on_addContactButton_clicked()
-{
-    QString contact = ui->addContactNameLineEdit->text();
-    if (contact.isEmpty()) {
-        return;
-    }
-
-    m_protocol->addContact(contact);
-    m_contactsModel->ensureContact(contact);
-    ui->addContactNameLineEdit->clear();
 }

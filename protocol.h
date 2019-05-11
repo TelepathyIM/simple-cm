@@ -33,15 +33,15 @@ public:
     void setConnectionManagerName(const QString &newName);
 
 public slots:
-    void sendMessage(QString sender, QString message);
+    void addMessage(QString sender, QString message);
     void addContact(const QString &contact);
     void setContactList(QStringList list);
     void setContactPresence(const QString &identifier, const QString &presence);
 
 signals:
-    void messageReceived(QString sender, QString message);
+    void clientSendMessage(QString targetId, QString message);
 
-    void newMessageToBeSent(QString sender, QString message);
+    void receiveMessage(QString sender, QString message);
     void contactsListChanged(QStringList list);
     void addContactRequested(const QString &contact);
     void vCardListChanged(QStringList list);

@@ -55,7 +55,7 @@ public slots:
     void setContactPresence(const QString &identifier, const QString &presence);
 
 signals:
-    void messageReceived(const QString &sender, const QString &message);
+    void sendMessage(const QString &sender, const QString &message);
 
 private:
     uint getHandle(const QString &identifier) const;

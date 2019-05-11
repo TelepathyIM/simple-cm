@@ -131,9 +131,6 @@ mc-tool enable simplecm/simplecm/account0</string>
         <string>Contact List</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_6">
-        <item row="0" column="0" colspan="3">
-         <widget class="QTableView" name="contactsView"/>
-        </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_7">
           <property name="text">
@@ -141,7 +138,10 @@ mc-tool enable simplecm/simplecm/account0</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
+        <item row="0" column="0" colspan="4">
+         <widget class="QTableView" name="contactsView"/>
+        </item>
+        <item row="1" column="3">
          <widget class="QPushButton" name="addContactButton">
           <property name="text">
            <string>Add</string>
@@ -220,7 +220,7 @@ mc-tool enable simplecm/simplecm/account0</string>
      <x>0</x>
      <y>0</y>
      <width>596</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -242,6 +242,22 @@ mc-tool enable simplecm/simplecm/account0</string>
     <hint type="destinationlabel">
      <x>207</x>
      <y>130</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>addContactNameLineEdit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>addContactButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>426</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>523</x>
+     <y>424</y>
     </hint>
    </hints>
   </connection>

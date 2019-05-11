@@ -198,7 +198,7 @@ Tp::BaseChannelPtr SimpleConnection::createChannel(const QVariantMap &request, T
     if (channelType == TP_QT_IFACE_CHANNEL_TYPE_TEXT) {
         SimpleTextChannelPtr textChannel = SimpleTextChannel::create(baseChannel.data());
         baseChannel->plugInterface(Tp::AbstractChannelInterfacePtr::dynamicCast(textChannel));
-        connect(textChannel.data(), SIGNAL(messageReceived(QString,QString)), SIGNAL(messageReceived(QString,QString)));
+        connect(textChannel.data(), &SimpleTextChannel::sendMessage, this, &SimpleConnection::sendMessage);
     }
 
     return baseChannel;
@@ -390,7 +390,7 @@ void SimpleConnection::receiveMessage(const QString &identifier, const QString &
         return;
     }
 
-    textChannel->whenMessageReceived(message);
+    textChannel->addIncomingMessage(message);
 }
 
 void SimpleConnection::setContactList(const QStringList &identifiers)

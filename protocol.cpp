@@ -57,9 +57,9 @@ void SimpleProtocol::setConnectionManagerName(const QString &newName)
     m_connectionManagerName = newName;
 }
 
-void SimpleProtocol::sendMessage(QString sender, QString message)
+void SimpleProtocol::addMessage(QString sender, QString message)
 {
-    emit newMessageToBeSent(sender, message);
+    emit receiveMessage(sender, message);
 }
 
 void SimpleProtocol::addContact(const QString &contact)
@@ -79,12 +79,17 @@ void SimpleProtocol::setContactPresence(const QString &identifier, const QString
 
 void SimpleProtocol::connectionCreatedEvent(SimpleConnection *newConnection)
 {
-    connect(this, SIGNAL(newMessageToBeSent(QString,QString)), newConnection, SLOT(receiveMessage(QString,QString)));
-    connect(this, SIGNAL(contactsListChanged(QStringList))   , newConnection, SLOT(setContactList(QStringList)));
-    connect(this, SIGNAL(addContactRequested(QString))       , newConnection, SLOT(addContact(QString)));
-    connect(this, SIGNAL(contactPresenceChanged(QString,QString)), newConnection, SLOT(setContactPresence(QString,QString)));
+    connect(this, &SimpleProtocol::receiveMessage,
+            newConnection, &SimpleConnection::receiveMessage);
+    connect(this, &SimpleProtocol::contactsListChanged,
+            newConnection, &SimpleConnection::setContactList);
+    connect(this, &SimpleProtocol::addContactRequested ,
+            newConnection, &SimpleConnection::addContact);
+    connect(this, &SimpleProtocol::contactPresenceChanged,
+            newConnection, &SimpleConnection::setContactPresence);
 
-    connect(newConnection, SIGNAL(messageReceived(QString,QString)), SIGNAL(messageReceived(QString,QString)));
+    connect(newConnection, &SimpleConnection::sendMessage,
+            this, &SimpleProtocol::clientSendMessage);
 }
 
 Tp::BaseConnectionPtr SimpleProtocol::createConnection(const QVariantMap &parameters, Tp::DBusError *error)

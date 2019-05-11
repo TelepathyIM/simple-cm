@@ -30,10 +30,10 @@ public:
     virtual ~SimpleTextChannel();
 
     QString sendMessageCallback(const Tp::MessagePartList &messageParts, uint flags, Tp::DBusError *error);
-    void whenMessageReceived(const QString &message);
+    void addIncomingMessage(const QString &message);
 
 signals:
-    void messageReceived(const QString &identifier, const QString &content);
+    void sendMessage(const QString &targetId, const QString &content);
 
 private:
     SimpleTextChannel(Tp::BaseChannel *baseChannel);

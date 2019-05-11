@@ -22,11 +22,11 @@ public:
 private slots:
     void on_registerButton_clicked(bool checked);
 
+    void on_addContactButton_clicked();
     void on_sendMessageButton_clicked();
 
-    void whenMessage(QString sender, QString message, bool fromSelfcontact = true);
-
-    void on_addContactButton_clicked();
+    void addMessageFromSelfContact(QString target, QString message);
+    void addMessage(QString sender, QString message);
 
 private:
     Ui::MainWindow *ui;
