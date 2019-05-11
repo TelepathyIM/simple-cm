@@ -9,7 +9,7 @@ set(SIMPLECM_VERSION_PATCH 0)
 set(SIMPLECM_VERSION "${SIMPLECM_VERSION_MAJOR}.${SIMPLECM_VERSION_MINOR}.${SIMPLECM_VERSION_PATCH}")
 
 # Add an option for building tests
-option(ENABLE_EXAMPLE "Enable compilation of an example app" FALSE)
+option(BUILD_EXAMPLE "Enable compilation of an example app" TRUE)
 
 if (USE_QT4)
     set(QT_VERSION_MAJOR "4")
@@ -86,6 +86,6 @@ install(
     COMPONENT Devel
 )
 
-if(ENABLE_EXAMPLE)
+if(BUILD_EXAMPLE)
     add_subdirectory(example)
 endif()
