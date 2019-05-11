@@ -11,17 +11,9 @@ set(SIMPLECM_VERSION "${SIMPLECM_VERSION_MAJOR}.${SIMPLECM_VERSION_MINOR}.${SIMP
 # Add an option for building tests
 option(BUILD_EXAMPLE "Enable compilation of an example app" TRUE)
 
-if (USE_QT4)
-    set(QT_VERSION_MAJOR "4")
-    find_package(Qt4 4.6.0 REQUIRED QtCore QtDBus)
-    find_package(TelepathyQt4 0.9.6 REQUIRED)
-    find_package(TelepathyQt4Service 0.9.6 REQUIRED)
-else()
-    set(QT_VERSION_MAJOR "5")
-    find_package(Qt5 REQUIRED COMPONENTS Core DBus)
-    find_package(TelepathyQt5 0.9.6 REQUIRED)
-    find_package(TelepathyQt5Service 0.9.6 REQUIRED)
-endif()
+find_package(Qt5 REQUIRED COMPONENTS Core DBus Network Xml)
+find_package(TelepathyQt5 0.9.6 REQUIRED)
+find_package(TelepathyQt5Service 0.9.6 REQUIRED)
 
 include(GNUInstallDirs)
 
@@ -42,29 +34,18 @@ set(simplecm_SOURCES
 
 add_library(simplecm-qt${QT_VERSION_MAJOR} STATIC ${simplecm_SOURCES} ${simplecm_HEADERS})
 
-if (USE_QT4)
-    target_include_directories(simplecm-qt${QT_VERSION_MAJOR} PRIVATE
-        ${QT_INCLUDES}
-        ${TELEPATHY_QT4_INCLUDE_DIR}
-    )
-    target_link_libraries(simplecm-qt${QT_VERSION_MAJOR}
-        ${QT_QTCORE_LIBRARY}
-        ${QT_QTDBUS_LIBRARY}
-        ${TELEPATHY_QT4_LIBRARIES}
-        ${TELEPATHY_QT4_SERVICE_LIBRARIES}
-    )
-else()
-    target_include_directories(simplecm-qt${QT_VERSION_MAJOR} PRIVATE
-        ${TELEPATHY_QT5_INCLUDE_DIR}
-    )
+target_include_directories(simplecm-qt${QT_VERSION_MAJOR} PRIVATE
+    ${TELEPATHY_QT5_INCLUDE_DIR}
+)
 
-    target_link_libraries(simplecm-qt${QT_VERSION_MAJOR}
-        Qt5::Core
-        Qt5::DBus
-        ${TELEPATHY_QT5_LIBRARIES}
-        ${TELEPATHY_QT5_SERVICE_LIBRARIES}
-    )
-endif()
+target_link_libraries(simplecm-qt${QT_VERSION_MAJOR}
+    Qt5::Core
+    Qt5::DBus
+    Qt5::Network
+    Qt5::Xml
+    ${TELEPATHY_QT5_LIBRARIES}
+    ${TELEPATHY_QT5_SERVICE_LIBRARIES}
+)
 
 set_target_properties(simplecm-qt${QT_VERSION_MAJOR} PROPERTIES AUTOMOC TRUE)
 
