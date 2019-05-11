@@ -281,7 +281,7 @@ Tp::SimplePresence SimpleConnection::getPresence(uint handle)
 uint SimpleConnection::setPresence(const QString &status, const QString &message, Tp::DBusError *error)
 {
     qDebug() << Q_FUNC_INFO << "not implemented";
-    return 0;
+    return selfHandle();
 }
 
 uint SimpleConnection::ensureContact(const QString &identifier)
