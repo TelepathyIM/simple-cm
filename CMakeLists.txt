@@ -1,41 +1,42 @@
-project(simplecm)
+cmake_minimum_required(VERSION 3.5)
 
-cmake_minimum_required(VERSION 2.8)
-
-set(SIMPLECM_VERSION_MAJOR 0)
-set(SIMPLECM_VERSION_MINOR 2)
-set(SIMPLECM_VERSION_PATCH 0)
-
-set(SIMPLECM_VERSION "${SIMPLECM_VERSION_MAJOR}.${SIMPLECM_VERSION_MINOR}.${SIMPLECM_VERSION_PATCH}")
+project(SimpleCM
+    VERSION 0.3.0
+)
 
 # Add an option for building tests
 option(BUILD_EXAMPLE "Enable compilation of an example app" TRUE)
 
-find_package(Qt5 REQUIRED COMPONENTS Core DBus Network Xml)
-find_package(TelepathyQt5 0.9.6 REQUIRED)
-find_package(TelepathyQt5Service 0.9.6 REQUIRED)
-
 include(GNUInstallDirs)
 
-add_definitions(-DSIMPLECM_LIBRARY)
+set(CMAKE_AUTOMOC TRUE)
+set(QT_VERSION_MAJOR 5)
 
-set(simplecm_HEADERS
-    connection.h
-    protocol.h
-    textchannel.h
-    simplecm_export.h
-)
+find_package(Qt5 REQUIRED COMPONENTS Core DBus Network Xml)
+find_package(TelepathyQt5 0.9.8 COMPONENTS Core Service REQUIRED)
 
 set(simplecm_SOURCES
     connection.cpp
+    connection.h
     protocol.cpp
+    protocol.h
+    simplecm_export.h
     textchannel.cpp
+    textchannel.h
 )
 
-add_library(simplecm-qt${QT_VERSION_MAJOR} STATIC ${simplecm_SOURCES} ${simplecm_HEADERS})
+add_library(simplecm-qt${QT_VERSION_MAJOR} STATIC ${simplecm_SOURCES})
+add_library(SimpleCM::SimpleCM ALIAS simplecm-qt${QT_VERSION_MAJOR})
 
-target_include_directories(simplecm-qt${QT_VERSION_MAJOR} PRIVATE
-    ${TELEPATHY_QT5_INCLUDE_DIR}
+target_compile_definitions(simplecm-qt${QT_VERSION_MAJOR} PRIVATE
+    SIMPLECM_LIBRARY
+)
+
+set(SIMPLECM_INCLUDE_DIR ${CMAKE_INSTALL_FULL_INCLUDEDIR}/SimpleCM)
+
+target_include_directories(simplecm-qt${QT_VERSION_MAJOR} PUBLIC
+    $<INSTALL_INTERFACE:${SIMPLECM_INCLUDE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
 target_link_libraries(simplecm-qt${QT_VERSION_MAJOR}
@@ -43,11 +44,9 @@ target_link_libraries(simplecm-qt${QT_VERSION_MAJOR}
     Qt5::DBus
     Qt5::Network
     Qt5::Xml
-    ${TELEPATHY_QT5_LIBRARIES}
-    ${TELEPATHY_QT5_SERVICE_LIBRARIES}
+    TelepathyQt5::Core
+    TelepathyQt5::Service
 )
-
-set_target_properties(simplecm-qt${QT_VERSION_MAJOR} PROPERTIES AUTOMOC TRUE)
 
 install(
     TARGETS simplecm-qt${QT_VERSION_MAJOR}
@@ -57,7 +56,7 @@ install(
 
 install(
     FILES ${simplecm_HEADERS}
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/simplecm
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/SimpleCM
     COMPONENT Devel
 )
 
