@@ -1,16 +1,16 @@
 #include "CContactsModel.hpp"
 
-#include "protocol.h"
+#include "simpleservice.h"
 
 CContactsModel::CContactsModel(QObject *parent) :
     QAbstractTableModel(parent),
-    m_protocol(0)
+    m_service(0)
 {
 }
 
-void CContactsModel::setProtocol(SimpleProtocol *protocol)
+void CContactsModel::setService(SimpleCM::Service *service)
 {
-    m_protocol = protocol;
+    m_service = service;
 }
 
 QVariant CContactsModel::data(const QModelIndex &index, int role) const
@@ -62,7 +62,7 @@ QVariant CContactsModel::headerData(int section, Qt::Orientation orientation, in
 
 bool CContactsModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if (!m_protocol) {
+    if (!m_service) {
         return false;
     }
 
@@ -88,7 +88,7 @@ bool CContactsModel::setData(const QModelIndex &index, const QVariant &value, in
         }
 
         m_contacts[contactIndex].presence = value.toString();
-        m_protocol->setContactPresence(m_contacts.at(contactIndex).identifier, m_contacts.at(contactIndex).presence);
+        m_service->setContactPresence(m_contacts.at(contactIndex).identifier, m_contacts.at(contactIndex).presence);
         return true;
     default:
         return false;
@@ -130,6 +130,8 @@ int CContactsModel::addContact(const QString identifier)
     beginInsertRows(QModelIndex(), newContactIndex, newContactIndex);
     m_contacts.append(contact);
     endInsertRows();
+
+    m_service->addContact(contact.identifier);
 
     return newContactIndex;
 }

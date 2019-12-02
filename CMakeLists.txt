@@ -21,6 +21,8 @@ set(simplecm_SOURCES
     protocol.cpp
     protocol.h
     simplecm_export.h
+    simpleservice.cpp
+    simpleservice.h
     textchannel.cpp
     textchannel.h
 )

@@ -9,7 +9,11 @@ struct SContact {
     QString presence;
 };
 
-class SimpleProtocol;
+namespace SimpleCM {
+
+class Service;
+
+} // SimpleCM
 
 class CContactsModel : public QAbstractTableModel
 {
@@ -22,7 +26,7 @@ public:
     };
 
     explicit CContactsModel(QObject *parent = 0);
-    void setProtocol(SimpleProtocol *protocol);
+    void setService(SimpleCM::Service *service);
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -42,7 +46,7 @@ public slots:
 private:
     int addContact(const QString identifier);
 
-    SimpleProtocol *m_protocol;
+    SimpleCM::Service *m_service = nullptr;
     QList<SContact> m_contacts;
 
 };

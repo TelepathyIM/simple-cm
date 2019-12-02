@@ -7,6 +7,13 @@ namespace Ui {
 class MainWindow;
 }
 
+namespace SimpleCM {
+
+class Service;
+class Message;
+
+} // SimpleCM
+
 class SimpleProtocol;
 
 class CContactsModel;
@@ -25,14 +32,13 @@ private slots:
     void on_addContactButton_clicked();
     void on_sendMessageButton_clicked();
 
-    void addMessageFromSelfContact(QString target, QString message);
-    void addMessage(QString sender, QString message);
+    void addMessageFromSelfContact(const SimpleCM::Message &message);
+    void addMessage(QString sender, QString text);
 
 private:
     Ui::MainWindow *ui;
-    SimpleProtocol *m_protocol;
-
-    CContactsModel *m_contactsModel;
+    SimpleCM::Service *m_service = nullptr;
+    CContactsModel *m_contactsModel = nullptr;
 };
 
 #endif // MAINWINDOW_H

@@ -2,31 +2,23 @@
 #include "ui_MainWindow.h"
 
 #include "CContactsModel.hpp"
-
 #include "CComboBoxDelegate.hpp"
 
-#include "protocol.h"
-
-#include <TelepathyQt/BaseConnectionManager>
-#include <TelepathyQt/Constants>
-#include <TelepathyQt/Debug>
-#include <TelepathyQt/Types>
+#include "simpleservice.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_protocol(0)
+    m_service(new SimpleCM::Service(this))
 {
-    Tp::registerTypes();
-    Tp::enableDebug(true);
-    Tp::enableWarnings(true);
-
     ui->setupUi(this);
 
     m_contactsModel = new CContactsModel(this);
     ui->contactsView->setModel(m_contactsModel);
 
     ui->contactsView->setItemDelegateForColumn(1, new CComboBoxDelegate(this));
+
+    m_contactsModel->setService(m_service);
 }
 
 MainWindow::~MainWindow()
@@ -36,33 +28,19 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_registerButton_clicked(bool checked)
 {
-    if (checked == bool(m_protocol)) {
+    if (m_service->isRunning()) {
         return;
     }
 
-    static Tp::BaseProtocolPtr proto;
-    static Tp::BaseConnectionManagerPtr cm;
-
     if (checked) {
-        proto = Tp::BaseProtocol::create<SimpleProtocol>(QDBusConnection::sessionBus(), ui->protocolName->text());
-        cm = Tp::BaseConnectionManager::create(QDBusConnection::sessionBus(), ui->cmNameEdit->text());
+        m_service->setManagerName(ui->cmNameEdit->text());
+        m_service->setProtocolName(ui->protocolName->text());
+        m_service->start();
 
-        m_protocol = static_cast<SimpleProtocol*> (proto.data());
-        m_protocol->setConnectionManagerName(cm->name());
-        m_protocol->setEnglishName(ui->displayNameEdit->text());
-        m_protocol->setIconName(ui->iconEdit->text());
-        m_protocol->setVCardField(ui->vcardField->text());
-
-        connect(m_protocol, &SimpleProtocol::clientSendMessage, this, &MainWindow::addMessageFromSelfContact);
-
-        m_contactsModel->setProtocol(m_protocol);
-
-        cm->addProtocol(proto);
-        cm->registerObject();
+        connect(m_service, &SimpleCM::Service::messageSent, this, &MainWindow::addMessageFromSelfContact);
     } else {
-        cm.reset();
-        proto.reset();
-        m_protocol = 0;
+        m_service->stop();
+        disconnect(m_service, &SimpleCM::Service::messageSent, this, &MainWindow::addMessageFromSelfContact);
     }
 }
 
@@ -73,14 +51,13 @@ void MainWindow::on_addContactButton_clicked()
         return;
     }
 
-    m_protocol->addContact(contact);
     m_contactsModel->ensureContact(contact);
     ui->addContactNameLineEdit->clear();
 }
 
 void MainWindow::on_sendMessageButton_clicked()
 {
-    if (!m_protocol) {
+    if (!m_service->isRunning()) {
         return;
     }
 
@@ -90,29 +67,38 @@ void MainWindow::on_sendMessageButton_clicked()
     ui->messageEdit->clear();
 
     addMessage(sender, message);
-
-    m_protocol->addMessage(sender, message);
 }
 
-void MainWindow::addMessageFromSelfContact(QString target, QString message)
+void MainWindow::addMessageFromSelfContact(const SimpleCM::Message &message)
 {
-    m_contactsModel->ensureContact(target);
-
-    if (target == ui->senderName->text()) {
-        ui->messagesLog->appendPlainText(">" + message);
+    QString peerContact;
+    if (message.to.type == SimpleCM::Peer::Type::Contact) {
+        peerContact = message.to.identifier;
+        m_contactsModel->ensureContact(peerContact);
     }
 
-    ui->allMessagesLog->appendPlainText("Message to " + target + "\n");
-    ui->allMessagesLog->appendPlainText(message);
+    if (peerContact == ui->senderName->text()) {
+        ui->messagesLog->appendPlainText(">" + message.text);
+    }
+
+    ui->allMessagesLog->appendPlainText("Message to " + message.to.identifier + "\n");
+    ui->allMessagesLog->appendPlainText(message.text);
 }
 
-void MainWindow::addMessage(QString sender, QString message)
+void MainWindow::addMessage(QString sender, QString text)
 {
     m_contactsModel->ensureContact(sender);
 
     if (sender == ui->senderName->text()) {
-        ui->messagesLog->appendPlainText("<" + message);
+        ui->messagesLog->appendPlainText("<" + text);
     }
     ui->allMessagesLog->appendPlainText("Message from " + sender + "\n");
-    ui->allMessagesLog->appendPlainText(message);
+    ui->allMessagesLog->appendPlainText(text);
+
+    SimpleCM::Message message;
+    message.from = sender;
+    message.to = SimpleCM::Peer::fromContactId(sender);
+    message.text = text;
+
+    m_service->addMessage(message);
 }
