@@ -16,7 +16,7 @@ public:
     Tp::BaseProtocolPtr baseProtocol;
     Tp::BaseConnectionManagerPtr baseCm;
 
-    bool isRunning = false;
+    bool running = false;
     QString selfContactId;
     QString cmName;
     QString protocolName;
@@ -35,7 +35,7 @@ Service::Service(QObject *parent)
 bool Service::isRunning() const
 {
     Q_D(const Service);
-    return d->isRunning;
+    return d->running;
 }
 
 QString Service::selfContactIdentifier() const
@@ -47,11 +47,11 @@ QString Service::selfContactIdentifier() const
 bool Service::start()
 {
     Q_D(Service);
-    if (d->isRunning) {
+    if (d->running) {
         return false;
     }
 
-    d->isRunning = true;
+    d->running = true;
 
     d->baseProtocol = Tp::BaseProtocol::create<SimpleProtocol>(QDBusConnection::sessionBus(), d->protocolName);
     d->baseCm = Tp::BaseConnectionManager::create(QDBusConnection::sessionBus(), d->cmName);
@@ -70,7 +70,7 @@ bool Service::start()
 bool Service::stop()
 {
     Q_D(Service);
-    if (!d->isRunning) {
+    if (!d->running) {
         return false;
     }
 
