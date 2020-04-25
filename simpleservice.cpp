@@ -51,6 +51,8 @@ bool Service::start()
         return false;
     }
 
+    d->isRunning = true;
+
     d->baseProtocol = Tp::BaseProtocol::create<SimpleProtocol>(QDBusConnection::sessionBus(), d->protocolName);
     d->baseCm = Tp::BaseConnectionManager::create(QDBusConnection::sessionBus(), d->cmName);
 
