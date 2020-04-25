@@ -29,6 +29,7 @@ MainWindow::~MainWindow()
 void MainWindow::on_registerButton_clicked(bool checked)
 {
     if (m_service->isRunning()) {
+        // We don't support shutdown (yet)
         return;
     }
 
