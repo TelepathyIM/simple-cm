@@ -34,7 +34,7 @@ void MainWindow::on_registerButton_clicked(bool checked)
     }
 
     if (checked) {
-        m_service->setManagerName(ui->cmNameEdit->text());
+        m_service->setManagerName(ui->managerName->text());
         m_service->setProtocolName(ui->protocolName->text());
         m_service->start();
 
@@ -45,7 +45,7 @@ void MainWindow::on_registerButton_clicked(bool checked)
     }
 }
 
-void MainWindow::on_addContactButton_clicked()
+void MainWindow::on_contactListAddContact_clicked()
 {
     QString contact = ui->addContactNameLineEdit->text();
     if (contact.isEmpty()) {
@@ -62,7 +62,7 @@ void MainWindow::on_sendMessageButton_clicked()
         return;
     }
 
-    QString sender = ui->senderName->text();
+    QString sender = ui->messagingSenderName->text();
     QString message = ui->messageEdit->toPlainText();
 
     ui->messageEdit->clear();
@@ -78,7 +78,7 @@ void MainWindow::addMessageFromSelfContact(const SimpleCM::Message &message)
         m_contactsModel->ensureContact(peerContact);
     }
 
-    if (peerContact == ui->senderName->text()) {
+    if (peerContact == ui->messagingSenderName->text()) {
         ui->messagesLog->appendPlainText(">" + message.text);
     }
 
@@ -90,7 +90,7 @@ void MainWindow::addMessage(QString sender, QString text)
 {
     m_contactsModel->ensureContact(sender);
 
-    if (sender == ui->senderName->text()) {
+    if (sender == ui->messagingSenderName->text()) {
         ui->messagesLog->appendPlainText("<" + text);
     }
     ui->allMessagesLog->appendPlainText("Message from " + sender + "\n");

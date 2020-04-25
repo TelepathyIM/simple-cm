@@ -15,8 +15,8 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_2">
-    <item row="0" column="0">
-     <widget class="QTabWidget" name="tabWidget">
+    <item row="0" column="1">
+     <widget class="QTabWidget" name="tabProtocolSettings">
       <property name="currentIndex">
        <number>0</number>
       </property>
@@ -38,7 +38,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="cmNameEdit">
+           <widget class="QLineEdit" name="managerName">
             <property name="text">
              <string>simplecm</string>
             </property>
@@ -131,6 +131,9 @@ mc-tool enable simplecm/simplecm/account0</string>
         <string>Contact List</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_6">
+        <item row="0" column="0" colspan="4">
+         <widget class="QTableView" name="contactsView"/>
+        </item>
         <item row="1" column="0">
          <widget class="QLabel" name="label_7">
           <property name="text">
@@ -138,18 +141,15 @@ mc-tool enable simplecm/simplecm/account0</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="0" colspan="4">
-         <widget class="QTableView" name="contactsView"/>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="addContactNameLineEdit"/>
         </item>
         <item row="1" column="3">
-         <widget class="QPushButton" name="addContactButton">
+         <widget class="QPushButton" name="contactListAddContact">
           <property name="text">
            <string>Add</string>
           </property>
          </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="addContactNameLineEdit"/>
         </item>
        </layout>
       </widget>
@@ -171,7 +171,7 @@ mc-tool enable simplecm/simplecm/account0</string>
           <widget class="QWidget" name="layoutWidget">
            <layout class="QGridLayout" name="gridLayout_3">
             <item row="1" column="1">
-             <widget class="QLineEdit" name="senderName"/>
+             <widget class="QLineEdit" name="messagingSenderName"/>
             </item>
             <item row="1" column="0">
              <widget class="QLabel" name="label_5">
@@ -230,7 +230,7 @@ mc-tool enable simplecm/simplecm/account0</string>
  <resources/>
  <connections>
   <connection>
-   <sender>senderName</sender>
+   <sender>messagingSenderName</sender>
    <signal>textChanged(QString)</signal>
    <receiver>messagesLog</receiver>
    <slot>clear()</slot>
@@ -248,7 +248,7 @@ mc-tool enable simplecm/simplecm/account0</string>
   <connection>
    <sender>addContactNameLineEdit</sender>
    <signal>returnPressed()</signal>
-   <receiver>addContactButton</receiver>
+   <receiver>contactListAddContact</receiver>
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">

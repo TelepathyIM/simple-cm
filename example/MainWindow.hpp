@@ -29,7 +29,7 @@ public:
 private slots:
     void on_registerButton_clicked(bool checked);
 
-    void on_addContactButton_clicked();
+    void on_contactListAddContact_clicked();
     void on_sendMessageButton_clicked();
 
     void addMessageFromSelfContact(const SimpleCM::Message &message);
