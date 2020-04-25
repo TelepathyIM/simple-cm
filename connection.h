@@ -31,6 +31,8 @@ public:
     static Tp::SimpleStatusSpecMap getSimpleStatusSpecMap();
 
     void connectCallback(Tp::DBusError *error);
+    void onDisconnectRequested();
+
     QStringList inspectHandles(uint handleType, const Tp::UIntList &handles, Tp::DBusError *error);
 
     Tp::BaseChannelPtr createChannel(const QVariantMap &request, Tp::DBusError *error);

@@ -91,6 +91,8 @@ SimpleConnection::SimpleConnection(const QDBusConnection &dbusConnection, const 
     setInspectHandlesCallback(Tp::memFun(this, &SimpleConnection::inspectHandles));
     setCreateChannelCallback(Tp::memFun(this, &SimpleConnection::createChannel));
     setRequestHandlesCallback(Tp::memFun(this, &SimpleConnection::requestHandles));
+    connect(this, &Tp::BaseConnection::disconnected,
+            this, &SimpleConnection::onDisconnectRequested);
 }
 
 SimpleConnection::~SimpleConnection()
@@ -115,6 +117,11 @@ void SimpleConnection::connectCallback(Tp::DBusError *error)
 
     /* Set ContactList status */
     contactListIface->setContactListState(Tp::ContactListStateSuccess);
+}
+
+void SimpleConnection::onDisconnectRequested()
+{
+    setStatus(Tp::ConnectionStatusDisconnected, Tp::ConnectionStatusReasonRequested);
 }
 
 QStringList SimpleConnection::inspectHandles(uint handleType, const Tp::UIntList &handles, Tp::DBusError *error)
