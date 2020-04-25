@@ -100,18 +100,6 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="0" colspan="2">
-           <widget class="QPlainTextEdit" name="plainTextEdit">
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-            <property name="plainText">
-             <string>Hint: To add account, use commands like this:
-mc-tool add simplecm/simplecm testing string:self_id=aaa
-mc-tool enable simplecm/simplecm/account0</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </item>
         <item row="1" column="0">
@@ -121,6 +109,25 @@ mc-tool enable simplecm/simplecm/account0</string>
           </property>
           <property name="checkable">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabAccountHelper">
+       <attribute name="title">
+        <string>Account Helper</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_8">
+        <item row="0" column="0" colspan="2">
+         <widget class="QPlainTextEdit" name="accountsHelpText">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+          <property name="plainText">
+           <string>Hint: To manually add an account, use commands like this:
+mc-tool add simplecm/simplecm testing string:self_id=aaa
+mc-tool enable simplecm/simplecm/account0</string>
           </property>
          </widget>
         </item>
