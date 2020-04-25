@@ -36,6 +36,9 @@ private slots:
     void addMessage(QString sender, QString text);
 
 private:
+    void startService(const QString &cmName, const QString &protocolName);
+    void stopService();
+
     Ui::MainWindow *ui;
     SimpleCM::Service *m_service = nullptr;
     CContactsModel *m_contactsModel = nullptr;

@@ -34,13 +34,10 @@ void MainWindow::on_registerButton_clicked(bool checked)
     }
 
     if (checked) {
-        m_service->setManagerName(ui->managerName->text());
-        m_service->setProtocolName(ui->protocolName->text());
-        m_service->start();
-
+        startService(ui->managerName->text(), ui->protocolName->text());
         connect(m_service, &SimpleCM::Service::messageSent, this, &MainWindow::addMessageFromSelfContact);
     } else {
-        m_service->stop();
+        stopService();
         disconnect(m_service, &SimpleCM::Service::messageSent, this, &MainWindow::addMessageFromSelfContact);
     }
 }
@@ -102,4 +99,16 @@ void MainWindow::addMessage(QString sender, QString text)
     message.text = text;
 
     m_service->addMessage(message);
+}
+
+void MainWindow::startService(const QString &cmName, const QString &protocolName)
+{
+    m_service->setManagerName(cmName);
+    m_service->setProtocolName(protocolName);
+    m_service->start();
+}
+
+void MainWindow::stopService()
+{
+    m_service->stop();
 }
