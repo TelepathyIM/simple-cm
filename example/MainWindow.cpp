@@ -3,6 +3,7 @@
 
 #include "CContactsModel.hpp"
 #include "CComboBoxDelegate.hpp"
+#include "PresetsLoader.hpp"
 
 #include "simpleservice.h"
 
@@ -19,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->contactsView->setItemDelegateForColumn(1, new CComboBoxDelegate(this));
 
     m_contactsModel->setService(m_service);
+
+    setupPresets();
 }
 
 MainWindow::~MainWindow()
@@ -111,4 +114,20 @@ void MainWindow::startService(const QString &cmName, const QString &protocolName
 void MainWindow::stopService()
 {
     m_service->stop();
+}
+
+void MainWindow::on_managerPresetsCombo_currentIndexChanged(int index)
+{
+    const ManagerPreset &preset = m_presets.at(index);
+    ui->managerName->setText(preset.name);
+    ui->protocolName->setText(preset.protocol);
+}
+
+void MainWindow::setupPresets()
+{
+    m_presets = PresetsLoader::presets();
+    ui->managerPresetsCombo->clear();
+    for (const ManagerPreset &preset : m_presets) {
+        ui->managerPresetsCombo->addItem(preset.name);
+    }
 }

@@ -8,6 +8,9 @@ set(cmTest_SRCS
     MainWindow.cpp
     MainWindow.hpp
     MainWindow.ui
+    ManagerPreset.hpp
+    PresetsLoader.cpp
+    PresetsLoader.hpp
     CComboBoxDelegate.cpp
     CComboBoxDelegate.hpp
     CContactsModel.cpp

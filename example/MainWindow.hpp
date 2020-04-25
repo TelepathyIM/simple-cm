@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include "ManagerPreset.hpp"
+
 namespace Ui {
 class MainWindow;
 }
@@ -35,11 +37,17 @@ private slots:
     void addMessageFromSelfContact(const SimpleCM::Message &message);
     void addMessage(QString sender, QString text);
 
+    void on_managerPresetsCombo_currentIndexChanged(int index);
+
 private:
     void startService(const QString &cmName, const QString &protocolName);
     void stopService();
 
+    void setupPresets();
+
     Ui::MainWindow *ui;
+
+    QList<ManagerPreset> m_presets;
     SimpleCM::Service *m_service = nullptr;
     CContactsModel *m_contactsModel = nullptr;
 };

@@ -31,69 +31,71 @@
            <enum>QFormLayout::ExpandingFieldsGrow</enum>
           </property>
           <item row="0" column="0">
+           <widget class="QLabel" name="label_10">
+            <property name="text">
+             <string>Preset:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="managerPresetsCombo"/>
+          </item>
+          <item row="1" column="0">
            <widget class="QLabel" name="label_6">
             <property name="text">
              <string>Connection manager name:</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="managerName">
-            <property name="text">
-             <string>simplecm</string>
-            </property>
-           </widget>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="managerName"/>
           </item>
-          <item row="1" column="0">
+          <item row="2" column="0">
            <widget class="QLabel" name="label_4">
             <property name="text">
              <string>Protocol name:</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="protocolName">
-            <property name="text">
-             <string>simplecm</string>
-            </property>
-           </widget>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="protocolName"/>
           </item>
-          <item row="2" column="0">
+          <item row="3" column="0">
            <widget class="QLabel" name="label">
             <property name="text">
              <string>Display name:</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="3" column="1">
            <widget class="QLineEdit" name="displayNameEdit">
             <property name="text">
              <string>Simple CM</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="label_2">
             <property name="text">
              <string>Icon:</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="4" column="1">
            <widget class="QLineEdit" name="iconEdit">
             <property name="text">
              <string/>
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="5" column="0">
            <widget class="QLabel" name="label_3">
             <property name="text">
              <string>VCardField:</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="5" column="1">
            <widget class="QLineEdit" name="vcardField">
             <property name="text">
              <string>id</string>
