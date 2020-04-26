@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->messagingSenderName->installEventFilter(this);
 
     ui->accountsView->setModel(m_accountHelper->accountsModel());
-    ui->accountsView->setColumnWidth(0, 200);
+    ui->accountsView->setColumnWidth(0, 240);
     connect(ui->accountsView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &MainWindow::updateAccountControls);
 

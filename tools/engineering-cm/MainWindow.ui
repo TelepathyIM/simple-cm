@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>596</width>
-    <height>479</height>
+    <width>600</width>
+    <height>480</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -336,8 +336,8 @@ mc-tool enable simplecm/simplecm/account0</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>596</width>
-     <height>22</height>
+     <width>600</width>
+     <height>32</height>
     </rect>
    </property>
   </widget>
