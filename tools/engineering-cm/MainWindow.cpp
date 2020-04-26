@@ -74,9 +74,11 @@ MainWindow::~MainWindow()
 void MainWindow::on_registerButton_clicked(bool checked)
 {
     if (checked) {
+        ui->registerButton->setText(tr("Stop the manager"));
         startService(ui->managerName->text(), ui->protocolName->text());
         connect(m_service, &SimpleCM::Service::messageSent, this, &MainWindow::addMessageFromSelfContact);
     } else {
+        ui->registerButton->setText(tr("Register the manager"));
         stopService();
         disconnect(m_service, &SimpleCM::Service::messageSent, this, &MainWindow::addMessageFromSelfContact);
     }
