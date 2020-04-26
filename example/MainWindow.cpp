@@ -26,6 +26,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    if (m_service->isRunning()) {
+        stopService();
+    }
     delete ui;
 }
 
