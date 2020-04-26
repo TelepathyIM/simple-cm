@@ -7,6 +7,24 @@
 
 #include "simpleservice.h"
 
+QString MainWindow::accountStatusToString(AccountHelper::AccountStatus status)
+{
+    switch (status) {
+    case AccountHelper::AccountStatus::NoAccount:
+        return tr("No account");
+    case AccountHelper::AccountStatus::Initialization:
+        return tr("Initialization");
+    case AccountHelper::AccountStatus::ReValidation:
+        return tr("Re-validation");
+    case AccountHelper::AccountStatus::Connected:
+        return tr("Connected");
+    case AccountHelper::AccountStatus::Disconnected:
+        return tr("Disconnected");
+    }
+
+    return tr("Invalid");
+}
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
@@ -15,6 +33,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     m_accountHelper = new AccountHelper(this);
+    connect(m_accountHelper, &AccountHelper::currentAccountIdChanged,
+            this, &MainWindow::onCurrentAccountIdChanged);
+    connect(m_accountHelper, &AccountHelper::currentAccountStatusChanged,
+            this, &MainWindow::onCurrentAccountStatusChanged);
 
     m_contactsModel = new CContactsModel(this);
     ui->contactsView->setModel(m_contactsModel);
@@ -186,4 +208,19 @@ void MainWindow::on_accountsView_doubleClicked(const QModelIndex &index)
 {
     const QString accountId = getAccountId(index);
     m_accountHelper->connectAccount(accountId);
+}
+
+void MainWindow::onCurrentAccountIdChanged()
+{
+    ui->currentAccountId->setText(m_accountHelper->currentAccountId());
+}
+
+void MainWindow::onCurrentAccountStatusChanged()
+{
+    const AccountHelper::AccountStatus status = m_accountHelper->currentAccountStatus();
+    ui->connectAccount->setEnabled(status != AccountHelper::AccountStatus::Connected);
+    ui->disconnectAccount->setEnabled(status == AccountHelper::AccountStatus::Connected);
+
+    const QString statusText = accountStatusToString(status);
+    ui->currentAccountStatus->setText(statusText);
 }

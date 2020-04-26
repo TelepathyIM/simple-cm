@@ -26,6 +26,16 @@ QAbstractItemModel *AccountHelper::accountsModel()
     return m_accountsModel;
 }
 
+QString AccountHelper::currentAccountId() const
+{
+    return m_currentAccount.isNull() ? QString() : m_currentAccount->uniqueIdentifier();
+}
+
+AccountHelper::AccountStatus AccountHelper::currentAccountStatus() const
+{
+    return m_accountStatus;
+}
+
 Tp::AccountPtr AccountHelper::getAccountById(const QString &identifier) const
 {
     for (const Tp::AccountPtr &suitableAccount : m_suitableAccounts) {
@@ -52,10 +62,12 @@ void AccountHelper::stop()
     }
 
     if (m_currentAccount->isChangingPresence() || m_currentAccount->isOnline()) {
+        setCurrentAccountStatus(AccountStatus::Disconnected);
         requestAccountPresence(m_currentAccount, Tp::ConnectionPresenceTypeOffline);
     }
 
     m_currentAccount.reset();
+    setCurrentAccountStatus(AccountStatus::NoAccount);
 }
 
 void AccountHelper::setManagerName(const QString &name)
@@ -120,6 +132,7 @@ void AccountHelper::connectAccount(const QString &identifier)
     }
 
     emit currentAccountIdChanged();
+    setCurrentAccountStatus(AccountStatus::Initialization);
 
     if (!m_currentAccount->isValidAccount()) {
         reValidateAccount();
@@ -147,6 +160,15 @@ void AccountHelper::initAccountManager()
             this, &AccountHelper::onAccountManagerReady);
     connect(m_accountManager.data(), &Tp::AccountManager::newAccount,
             this, &AccountHelper::onNewAccount);
+}
+
+void AccountHelper::setCurrentAccountStatus(AccountHelper::AccountStatus status)
+{
+    if (m_accountStatus == status) {
+        return;
+    }
+    m_accountStatus = status;
+    emit currentAccountStatusChanged();
 }
 
 void AccountHelper::updateSuitableAccounts()
@@ -198,6 +220,7 @@ void AccountHelper::requestAccountOnline()
         return;
     }
 
+    setCurrentAccountStatus(AccountStatus::Connected);
     requestAccountPresence(m_currentAccount, Tp::ConnectionPresenceTypeAvailable);
 }
 
@@ -260,6 +283,7 @@ void AccountHelper::reValidateAccount()
     QVariantMap parameters = m_currentAccount->parameters();
     qCDebug(lcSimpleAccountHelper) << m_currentAccount->parameters();
 
+    setCurrentAccountStatus(AccountStatus::ReValidation);
     Tp::PendingOperation *operation = m_currentAccount->updateParameters(parameters, { });
     connect(operation, &Tp::PendingOperation::finished,
             this, &AccountHelper::onAccountValid);

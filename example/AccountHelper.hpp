@@ -15,17 +15,28 @@ class AccountHelper : public QObject
 {
     Q_OBJECT
 public:
+    enum class AccountStatus {
+        NoAccount,
+        Initialization,
+        ReValidation,
+        Connected,
+        Disconnected,
+    };
+    Q_ENUM(AccountStatus)
+
     explicit AccountHelper(QObject *parent = nullptr);
 
     QAbstractItemModel *accountsModel();
 
     enum AccountModelSection {
         AccountId,
+        AccountEnabled,
         AccountValid,
         SectionsCount,
     };
 
     QString currentAccountId() const;
+    AccountStatus currentAccountStatus() const;
 
     Tp::AccountPtr getAccountById(const QString &identifier) const;
 
@@ -57,6 +68,7 @@ protected slots:
 protected:
     void initAccountManager();
 
+    void setCurrentAccountStatus(AccountStatus status);
     void updateSuitableAccounts();
     void updateModelData();
 
@@ -70,6 +82,7 @@ protected:
     QList<Tp::AccountPtr> m_allAccounts;
     QList<Tp::AccountPtr> m_suitableAccounts;
     Tp::AccountPtr m_currentAccount;
+    AccountStatus m_accountStatus = AccountStatus::NoAccount;
     QString m_managerName;
     QString m_protocolName;
     QStandardItemModel *m_accountsModel = nullptr;

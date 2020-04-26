@@ -44,6 +44,9 @@ private slots:
     void on_managerPresetsCombo_currentIndexChanged(int index);
     void on_accountsView_doubleClicked(const QModelIndex &index);
 
+    void onCurrentAccountIdChanged();
+    void onCurrentAccountStatusChanged();
+
 private:
     void startService(const QString &cmName, const QString &protocolName);
     void stopService();
@@ -51,6 +54,8 @@ private:
     void setupPresets();
     QString getSelectedAccount() const;
     QString getAccountId(const QModelIndex &accountIndex) const;
+
+    static QString accountStatusToString(AccountHelper::AccountStatus status);
 
     Ui::MainWindow *ui;
 
