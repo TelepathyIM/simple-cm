@@ -87,6 +87,7 @@ bool Service::stop()
     d->baseCm.reset();
     d->baseProtocol.reset();
     d->protocol = nullptr;
+    d->running = false;
 
     return true;
 }
