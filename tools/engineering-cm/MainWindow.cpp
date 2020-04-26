@@ -73,11 +73,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_registerButton_clicked(bool checked)
 {
-    if (m_service->isRunning()) {
-        // We don't support shutdown (yet)
-        return;
-    }
-
     if (checked) {
         startService(ui->managerName->text(), ui->protocolName->text());
         connect(m_service, &SimpleCM::Service::messageSent, this, &MainWindow::addMessageFromSelfContact);
