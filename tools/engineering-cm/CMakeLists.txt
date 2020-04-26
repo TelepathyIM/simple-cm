@@ -23,10 +23,7 @@ add_executable(engineering-connection-manager-qt${QT_VERSION_MAJOR} ${cmTest_SRC
 
 target_link_libraries(engineering-connection-manager-qt${QT_VERSION_MAJOR} PRIVATE
     Qt5::Core
-    Qt5::DBus
     Qt5::Gui
     Qt5::Widgets
-    Qt5::Network
-    Qt5::Xml
     SimpleCM::SimpleCM
 )
