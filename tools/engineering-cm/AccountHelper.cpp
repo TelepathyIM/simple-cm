@@ -143,9 +143,26 @@ void AccountHelper::connectAccount(const QString &identifier)
 
 void AccountHelper::disconnectAccount(const QString &identifier)
 {
-    Tp::AccountPtr account = getAccountById(identifier);
+    if (identifier.isEmpty()) {
+        qCWarning(lcSimpleAccountHelper) << __func__ << "Account id is empty";
+        return;
+    }
+    const Tp::AccountPtr account = getAccountById(identifier);
+    if (!account) {
+        qCWarning(lcSimpleAccountHelper) << __func__ << "Unable to find account" << identifier;
+        return;
+    }
+
+    Tp::PendingOperation *operation = account->setEnabled(false);
+    connect(operation, &Tp::PendingOperation::finished,
+            this, &AccountHelper::updateModelData);
+
     if (account->isChangingPresence() || account->isOnline()) {
         requestAccountPresence(account, Tp::ConnectionPresenceTypeOffline);
+    }
+
+    if (m_currentAccount == account) {
+        setCurrentAccountStatus(AccountStatus::NoAccount);
     }
 }
 

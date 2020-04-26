@@ -251,6 +251,12 @@ void MainWindow::on_connectAccount_clicked()
     m_accountHelper->connectAccount(accountId);
 }
 
+void MainWindow::on_disconnectAccount_clicked()
+{
+    const QString accountId = getSelectedAccount();
+    m_accountHelper->disconnectAccount(accountId);
+}
+
 void MainWindow::on_accountsView_doubleClicked(const QModelIndex &index)
 {
     const QString accountId = getAccountId(index);

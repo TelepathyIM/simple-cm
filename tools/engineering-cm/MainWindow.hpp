@@ -41,6 +41,7 @@ private slots:
     void on_addAccount_clicked();
     void on_removeAccount_clicked();
     void on_connectAccount_clicked();
+    void on_disconnectAccount_clicked();
     void on_managerPresetsCombo_currentIndexChanged(int index);
     void on_accountsView_doubleClicked(const QModelIndex &index);
 
