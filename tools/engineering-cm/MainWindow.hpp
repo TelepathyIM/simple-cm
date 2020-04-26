@@ -47,6 +47,9 @@ private slots:
     void onCurrentAccountIdChanged();
     void onCurrentAccountStatusChanged();
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private:
     void startService(const QString &cmName, const QString &protocolName);
     void stopService();

@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget *parent) :
     contactsCompleter->setModel(m_contactsModel);
     contactsCompleter->setCompletionColumn(CContactsModel::Columns::Identifier);
     ui->messagingSenderName->setCompleter(contactsCompleter);
+    ui->messagingSenderName->installEventFilter(this);
 
     ui->accountsView->setModel(m_accountHelper->accountsModel());
     ui->accountsView->setColumnWidth(0, 200);
@@ -268,4 +269,19 @@ void MainWindow::onCurrentAccountStatusChanged()
     const AccountHelper::AccountStatus status = m_accountHelper->currentAccountStatus();
     const QString statusText = accountStatusToString(status);
     ui->currentAccountStatus->setText(statusText);
+}
+
+bool MainWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == ui->messagingSenderName) {
+        if (event->type() == QEvent::MouseButtonDblClick) {
+            if (ui->messagingSenderName->text().isEmpty()) {
+                ui->messagingSenderName->completer()->complete();
+                event->accept();
+                return true;
+            }
+        }
+    }
+
+    return QMainWindow::eventFilter(watched, event);
 }
