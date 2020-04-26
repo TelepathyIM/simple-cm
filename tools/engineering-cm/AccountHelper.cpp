@@ -201,6 +201,8 @@ void AccountHelper::updateModelData()
     for (const Tp::AccountPtr &account : m_suitableAccounts) {
         QList<QStandardItem *> rowItems;
         rowItems << new QStandardItem(account->uniqueIdentifier());
+        QString enabledText = account->isEnabled() ? tr("Enabled") : tr("Disabled");
+        rowItems << new QStandardItem(enabledText);
         QString validText = account->isValidAccount() ? tr("Valid") : tr("Invalid");
         rowItems << new QStandardItem(validText);
         m_accountsModel->appendRow(rowItems);

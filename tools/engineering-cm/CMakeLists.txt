@@ -19,9 +19,9 @@ set(cmTest_SRCS
     CContactsModel.hpp
 )
 
-add_executable(simple-connection-manager-qt${QT_VERSION_MAJOR} ${cmTest_SRCS})
+add_executable(engineering-connection-manager-qt${QT_VERSION_MAJOR} ${cmTest_SRCS})
 
-target_link_libraries(simple-connection-manager-qt${QT_VERSION_MAJOR} PRIVATE
+target_link_libraries(engineering-connection-manager-qt${QT_VERSION_MAJOR} PRIVATE
     Qt5::Core
     Qt5::DBus
     Qt5::Gui

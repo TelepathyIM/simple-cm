@@ -5,7 +5,7 @@ project(SimpleCM
 )
 
 # Add an option for building tests
-option(BUILD_EXAMPLE "Enable compilation of an example app" TRUE)
+option(BUILD_TOOLS "Build tools" TRUE)
 
 include(GNUInstallDirs)
 
@@ -68,6 +68,6 @@ install(
     COMPONENT Devel
 )
 
-if(BUILD_EXAMPLE)
-    add_subdirectory(example)
+if(BUILD_TOOLS)
+    add_subdirectory(tools)
 endif()
