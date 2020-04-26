@@ -62,6 +62,16 @@ bool Service::start()
     // d->protocol->setIconName(ui->iconEdit->text());
     // d->protocol->setVCardField(ui->vcardField->text());
 
+    connect(d->protocol, &SimpleProtocol::clientSendMessage,
+            this, [this](const QString &targetId, const QString &message) {
+
+        Message clientToServiceMessage;
+        clientToServiceMessage.to = Peer::fromContactId(targetId);
+        clientToServiceMessage.text = message;
+
+        emit messageSent(clientToServiceMessage);
+    });
+
     d->baseCm->addProtocol(d->baseProtocol);
 
     return d->baseCm->registerObject();
