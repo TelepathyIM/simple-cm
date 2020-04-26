@@ -47,8 +47,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->accountsView->setModel(m_accountHelper->accountsModel());
     ui->accountsView->setColumnWidth(0, 200);
+    connect(ui->accountsView->selectionModel(), &QItemSelectionModel::selectionChanged,
+            this, &MainWindow::updateAccountControls);
 
     setupPresets();
+    updateTabsState();
+    updateAccountControls();
 }
 
 MainWindow::~MainWindow()
@@ -73,6 +77,8 @@ void MainWindow::on_registerButton_clicked(bool checked)
         stopService();
         disconnect(m_service, &SimpleCM::Service::messageSent, this, &MainWindow::addMessageFromSelfContact);
     }
+
+    updateTabsState();
 }
 
 void MainWindow::on_contactListAddContact_clicked()
@@ -167,8 +173,38 @@ void MainWindow::setupPresets()
     }
 }
 
+void MainWindow::updateTabsState()
+{
+    ui->tabAccountHelper->setEnabled(m_service->isRunning());
+}
+
+void MainWindow::updateAccountControls()
+{
+    const QString selectedAccount = getSelectedAccount();
+    const bool hasSelectedAccount = !selectedAccount.isEmpty();
+    ui->removeAccount->setEnabled(hasSelectedAccount);
+    if (hasSelectedAccount && m_service->isRunning()) {
+        if (selectedAccount == m_accountHelper->currentAccountId()) {
+            const AccountHelper::AccountStatus status = m_accountHelper->currentAccountStatus();
+            ui->connectAccount->setEnabled(status != AccountHelper::AccountStatus::Connected);
+            ui->disconnectAccount->setEnabled(status == AccountHelper::AccountStatus::Connected);
+        } else {
+            if (m_accountHelper->currentAccountStatus() == AccountHelper::AccountStatus::NoAccount) {
+                ui->connectAccount->setEnabled(true);
+            }
+            ui->disconnectAccount->setEnabled(false);
+        }
+    } else {
+        ui->connectAccount->setEnabled(false);
+        ui->disconnectAccount->setEnabled(false);
+    }
+}
+
 QString MainWindow::getSelectedAccount() const
 {
+    if (!ui->accountsView->model()) {
+        return QString();
+    }
     const QModelIndexList selection = ui->accountsView->selectionModel()->selectedIndexes();
     if (selection.isEmpty()) {
         return QString();
@@ -217,10 +253,9 @@ void MainWindow::onCurrentAccountIdChanged()
 
 void MainWindow::onCurrentAccountStatusChanged()
 {
-    const AccountHelper::AccountStatus status = m_accountHelper->currentAccountStatus();
-    ui->connectAccount->setEnabled(status != AccountHelper::AccountStatus::Connected);
-    ui->disconnectAccount->setEnabled(status == AccountHelper::AccountStatus::Connected);
+    updateAccountControls();
 
+    const AccountHelper::AccountStatus status = m_accountHelper->currentAccountStatus();
     const QString statusText = accountStatusToString(status);
     ui->currentAccountStatus->setText(statusText);
 }

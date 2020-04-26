@@ -52,6 +52,8 @@ private:
     void stopService();
 
     void setupPresets();
+    void updateTabsState();
+    void updateAccountControls();
     QString getSelectedAccount() const;
     QString getAccountId(const QModelIndex &accountIndex) const;
 
