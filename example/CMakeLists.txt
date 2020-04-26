@@ -4,6 +4,8 @@ set(CMAKE_AUTOUIC TRUE)
 find_package(Qt5 REQUIRED COMPONENTS Core DBus Gui Widgets Network Xml)
 
 set(cmTest_SRCS
+    AccountHelper.cpp
+    AccountHelper.hpp
     main.cpp
     MainWindow.cpp
     MainWindow.hpp

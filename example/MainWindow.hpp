@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 
+#include "AccountHelper.hpp"
 #include "ManagerPreset.hpp"
 
 namespace Ui {
@@ -37,19 +38,26 @@ private slots:
     void addMessageFromSelfContact(const SimpleCM::Message &message);
     void addMessage(QString sender, QString text);
 
+    void on_addAccount_clicked();
+    void on_removeAccount_clicked();
+    void on_connectAccount_clicked();
     void on_managerPresetsCombo_currentIndexChanged(int index);
+    void on_accountsView_doubleClicked(const QModelIndex &index);
 
 private:
     void startService(const QString &cmName, const QString &protocolName);
     void stopService();
 
     void setupPresets();
+    QString getSelectedAccount() const;
+    QString getAccountId(const QModelIndex &accountIndex) const;
 
     Ui::MainWindow *ui;
 
     QList<ManagerPreset> m_presets;
     SimpleCM::Service *m_service = nullptr;
     CContactsModel *m_contactsModel = nullptr;
+    AccountHelper *m_accountHelper = nullptr;
 };
 
 #endif // MAINWINDOW_H

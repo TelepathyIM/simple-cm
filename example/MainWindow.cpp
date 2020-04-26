@@ -14,12 +14,17 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    m_accountHelper = new AccountHelper(this);
+
     m_contactsModel = new CContactsModel(this);
     ui->contactsView->setModel(m_contactsModel);
 
     ui->contactsView->setItemDelegateForColumn(1, new CComboBoxDelegate(this));
 
     m_contactsModel->setService(m_service);
+
+    ui->accountsView->setModel(m_accountHelper->accountsModel());
+    ui->accountsView->setColumnWidth(0, 200);
 
     setupPresets();
 }
@@ -112,10 +117,15 @@ void MainWindow::startService(const QString &cmName, const QString &protocolName
     m_service->setManagerName(cmName);
     m_service->setProtocolName(protocolName);
     m_service->start();
+
+    m_accountHelper->setManagerName(cmName);
+    m_accountHelper->setProtocolName(protocolName);
+    m_accountHelper->start();
 }
 
 void MainWindow::stopService()
 {
+    m_accountHelper->stop();
     m_service->stop();
 }
 
@@ -133,4 +143,47 @@ void MainWindow::setupPresets()
     for (const ManagerPreset &preset : m_presets) {
         ui->managerPresetsCombo->addItem(preset.name);
     }
+}
+
+QString MainWindow::getSelectedAccount() const
+{
+    const QModelIndexList selection = ui->accountsView->selectionModel()->selectedIndexes();
+    if (selection.isEmpty()) {
+        return QString();
+    }
+
+    return getAccountId(selection.constFirst());
+}
+
+QString MainWindow::getAccountId(const QModelIndex &accountIndex) const
+{
+#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
+    QModelIndex accountIdIndex = accountIndex.siblingAtColumn(AccountHelper::AccountModelSection::AccountId);
+#else
+    QModelIndex accountIdIndex = accountIndex.sibling(accountIndex.row(), AccountHelper::AccountModelSection::AccountId);
+#endif
+    return accountIdIndex.data().toString();
+}
+
+void MainWindow::on_addAccount_clicked()
+{
+    m_accountHelper->addAccount();
+}
+
+void MainWindow::on_removeAccount_clicked()
+{
+    const QString accountId = getSelectedAccount();
+    m_accountHelper->removeAccount(accountId);
+}
+
+void MainWindow::on_connectAccount_clicked()
+{
+    const QString accountId = getSelectedAccount();
+    m_accountHelper->connectAccount(accountId);
+}
+
+void MainWindow::on_accountsView_doubleClicked(const QModelIndex &index)
+{
+    const QString accountId = getAccountId(index);
+    m_accountHelper->connectAccount(accountId);
 }
