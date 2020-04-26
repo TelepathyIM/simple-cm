@@ -5,7 +5,7 @@
 #include "CComboBoxDelegate.hpp"
 #include "PresetsLoader.hpp"
 
-#include "simpleservice.h"
+#include <SimpleCM/Service>
 
 QString MainWindow::accountStatusToString(AccountHelper::AccountStatus status)
 {

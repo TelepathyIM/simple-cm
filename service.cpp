@@ -1,4 +1,4 @@
-#include "simpleservice.h"
+#include "service.h"
 
 #include <TelepathyQt/BaseConnectionManager>
 #include <TelepathyQt/BaseProtocol>

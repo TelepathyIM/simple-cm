@@ -1,1 +1,1 @@
-#include <simplecm/textchannel.h>
+#include "textchannel.h"

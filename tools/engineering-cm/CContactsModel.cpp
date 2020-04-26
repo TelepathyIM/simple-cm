@@ -1,6 +1,6 @@
 #include "CContactsModel.hpp"
 
-#include "simpleservice.h"
+#include <SimpleCM/Service>
 
 CContactsModel::CContactsModel(QObject *parent) :
     QAbstractTableModel(parent),
