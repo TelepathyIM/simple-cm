@@ -162,6 +162,9 @@ void MainWindow::on_managerPresetsCombo_currentIndexChanged(int index)
     const ManagerPreset &preset = m_presets.at(index);
     ui->managerName->setText(preset.name);
     ui->protocolName->setText(preset.protocol);
+    ui->protocolDisplayName->setText(preset.protocolDisplayName);
+    ui->protocolIcon->setText(preset.protocolIcon);
+    ui->protocolAddressibleVCardFields->setText(preset.addressableVCardFields.join(QLatin1Char(';')));
 }
 
 void MainWindow::setupPresets()

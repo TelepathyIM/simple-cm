@@ -1,7 +1,7 @@
 #ifndef SIMPLE_MANAGER_PRESET_HPP
 #define SIMPLE_MANAGER_PRESET_HPP
 
-#include <QString>
+#include <QStringList>
 
 struct ManagerPreset
 {
@@ -14,6 +14,10 @@ struct ManagerPreset
 
     QString name;
     QString protocol;
+    QString protocolDisplayName;
+    QString protocolIcon;
+    QStringList addressableVCardFields;
+    QStringList addressableURISchemes;
 };
 
 #endif // SIMPLE_MANAGER_PRESET_HPP

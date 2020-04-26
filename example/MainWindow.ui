@@ -68,11 +68,7 @@
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="QLineEdit" name="displayNameEdit">
-            <property name="text">
-             <string>Simple CM</string>
-            </property>
-           </widget>
+           <widget class="QLineEdit" name="protocolDisplayName"/>
           </item>
           <item row="4" column="0">
            <widget class="QLabel" name="label_2">
@@ -82,7 +78,7 @@
            </widget>
           </item>
           <item row="4" column="1">
-           <widget class="QLineEdit" name="iconEdit">
+           <widget class="QLineEdit" name="protocolIcon">
             <property name="text">
              <string/>
             </property>
@@ -96,11 +92,7 @@
            </widget>
           </item>
           <item row="5" column="1">
-           <widget class="QLineEdit" name="vcardField">
-            <property name="text">
-             <string>id</string>
-            </property>
-           </widget>
+           <widget class="QLineEdit" name="protocolAddressibleVCardFields"/>
           </item>
          </layout>
         </item>
