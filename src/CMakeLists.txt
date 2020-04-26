@@ -11,6 +11,14 @@ set(simplecm_SOURCES
     textchannel.h
 )
 
+set(public_HEADERS
+    connection.h
+    protocol.h
+    simplecm_export.h
+    service.h
+    textchannel.h
+)
+
 add_library(simplecm-qt${QT_VERSION_MAJOR} STATIC ${simplecm_SOURCES})
 add_library(SimpleCM::SimpleCM ALIAS simplecm-qt${QT_VERSION_MAJOR})
 
@@ -41,7 +49,7 @@ install(
 )
 
 install(
-    FILES ${simplecm_HEADERS}
+    FILES ${public_HEADERS}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/SimpleCM
     COMPONENT Devel
 )
