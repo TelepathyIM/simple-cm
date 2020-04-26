@@ -13,7 +13,7 @@ set(CMAKE_AUTOMOC TRUE)
 set(QT_VERSION_MAJOR 5)
 
 find_package(Qt5 REQUIRED COMPONENTS Core DBus Network Xml)
-find_package(TelepathyQt5 0.9.8 COMPONENTS Core Service REQUIRED)
+find_package(TelepathyQt5 0.9.7 COMPONENTS Core Service REQUIRED)
 
 add_subdirectory(src)
 

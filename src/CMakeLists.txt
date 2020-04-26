@@ -33,14 +33,24 @@ target_include_directories(simplecm-qt${QT_VERSION_MAJOR} PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 )
 
-target_link_libraries(simplecm-qt${QT_VERSION_MAJOR}
+target_link_libraries(simplecm-qt${QT_VERSION_MAJOR} PUBLIC
     Qt5::Core
     Qt5::DBus
-    Qt5::Network
-    Qt5::Xml
-    TelepathyQt5::Core
-    TelepathyQt5::Service
 )
+
+if (TARGET TelepathyQt5::Core)
+    target_link_libraries(simplecm-qt${QT_VERSION_MAJOR} PUBLIC
+        TelepathyQt5::Core
+        TelepathyQt5::Service
+    )
+else()
+    target_link_libraries(simplecm-qt${QT_VERSION_MAJOR} PUBLIC
+        telepathy-qt5
+        telepathy-qt5-service
+        Qt5::Xml
+        Qt5::Network
+    )
+endif()
 
 install(
     TARGETS simplecm-qt${QT_VERSION_MAJOR}
