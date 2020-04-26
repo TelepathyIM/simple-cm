@@ -7,6 +7,8 @@
 
 #include <SimpleCM/Service>
 
+#include <QCompleter>
+
 QString MainWindow::accountStatusToString(AccountHelper::AccountStatus status)
 {
     switch (status) {
@@ -44,6 +46,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->contactsView->setItemDelegateForColumn(1, new CComboBoxDelegate(this));
 
     m_contactsModel->setService(m_service);
+
+    QCompleter *contactsCompleter = new QCompleter(this);
+    contactsCompleter->setModel(m_contactsModel);
+    contactsCompleter->setCompletionColumn(CContactsModel::Columns::Identifier);
+    ui->messagingSenderName->setCompleter(contactsCompleter);
 
     ui->accountsView->setModel(m_accountHelper->accountsModel());
     ui->accountsView->setColumnWidth(0, 200);
