@@ -26,6 +26,7 @@ typedef Tp::SharedPtr<SimpleTextChannel> SimpleTextChannelPtr;
 namespace SimpleCM {
 
 class Chat;
+class Message;
 
 } // SimpleCM
 
@@ -68,7 +69,10 @@ public slots:
     void setContactPresence(const QString &identifier, const QString &presence);
 
 signals:
-    void sendMessage(const QString &sender, const QString &message);
+    void newMessage(const SimpleCM::Message &message);
+
+protected slots:
+    void onChannelSendMessageRequested(const QString &target, const QString &content);
 
 private:
     uint getHandle(const QString &identifier) const;

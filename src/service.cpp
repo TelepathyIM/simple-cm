@@ -99,15 +99,8 @@ bool Service::start()
 
     m_d->state = ServiceState::Running;
 
-    connect(m_d->protocol, &SimpleProtocol::clientSendMessage,
-            this, [this](const QString &targetId, const QString &message) {
-
-        Message clientToServiceMessage;
-        clientToServiceMessage.chat = Chat::fromContactId(targetId);
-        clientToServiceMessage.text = message;
-
-        emit messageSent(clientToServiceMessage);
-    });
+    connect(m_d->protocol, &SimpleProtocol::newMessage,
+            this, &Service::newMessage);
 
     return m_d->lowLevelData->connectionManager->registerObject();
 }

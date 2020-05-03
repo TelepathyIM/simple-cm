@@ -98,8 +98,8 @@ void SimpleProtocol::connectionCreatedEvent(SimpleConnectionPtr connection)
     connect(this, &SimpleProtocol::contactPresenceChanged,
             connection.data(), &SimpleConnection::setContactPresence);
 
-    connect(connection.data(), &SimpleConnection::sendMessage,
-            this, &SimpleProtocol::clientSendMessage);
+    connect(connection.data(), &SimpleConnection::newMessage,
+            this, &SimpleProtocol::newMessage);
 
     m_connection = connection;
 }

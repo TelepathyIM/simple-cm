@@ -18,6 +18,12 @@
 
 #include <TelepathyQt/BaseProtocol>
 
+namespace SimpleCM {
+
+class Message;
+
+} // SimpleCM
+
 class SimpleConnection;
 typedef Tp::SharedPtr<SimpleConnection> SimpleConnectionPtr;
 
@@ -42,7 +48,7 @@ public slots:
     void setContactPresence(const QString &identifier, const QString &presence);
 
 signals:
-    void clientSendMessage(QString targetId, QString message);
+    void newMessage(const SimpleCM::Message &message);
 
     void receiveMessage(QString sender, QString message);
     void contactsListChanged(QStringList list);

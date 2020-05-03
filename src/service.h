@@ -27,7 +27,7 @@ public:
 #endif
 
 signals:
-    void messageSent(const Message &message);
+    void newMessage(const Message &message);
 
 public slots:
     bool start();

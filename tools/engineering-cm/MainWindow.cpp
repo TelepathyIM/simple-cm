@@ -85,11 +85,11 @@ void MainWindow::on_registerButton_clicked(bool checked)
     if (checked) {
         ui->registerButton->setText(tr("Stop the manager"));
         startService(ui->managerName->text(), ui->protocolName->text());
-        connect(m_service, &SimpleCM::Service::messageSent, this, &MainWindow::addMessageFromSelfContact);
+        connect(m_service, &SimpleCM::Service::newMessage, this, &MainWindow::onNewMessage);
     } else {
         ui->registerButton->setText(tr("Register the manager"));
         stopService();
-        disconnect(m_service, &SimpleCM::Service::messageSent, this, &MainWindow::addMessageFromSelfContact);
+        disconnect(m_service, &SimpleCM::Service::newMessage, this, &MainWindow::onNewMessage);
     }
 
     updateTabsState();
@@ -120,7 +120,7 @@ void MainWindow::on_sendMessageButton_clicked()
     addMessage(sender, message);
 }
 
-void MainWindow::addMessageFromSelfContact(const SimpleCM::Message &message)
+void MainWindow::onNewMessage(const SimpleCM::Message &message)
 {
     logMessage(message);
 }
@@ -131,8 +131,6 @@ void MainWindow::addMessage(const QString &targetContact, const QString &text)
     message.from = targetContact;
     message.chat = SimpleCM::Chat::fromContactId(targetContact);
     message.text = text;
-
-    logMessage(message);
 
     m_service->addMessage(message);
 }

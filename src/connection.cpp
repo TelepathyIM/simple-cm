@@ -14,6 +14,7 @@
 #include "connection.h"
 
 #include "Chat.hpp"
+#include "Message.hpp"
 #include "textchannel.h"
 
 #include <TelepathyQt/Constants>
@@ -206,7 +207,8 @@ Tp::BaseChannelPtr SimpleConnection::createChannel(const QVariantMap &request, T
     if (channelType == TP_QT_IFACE_CHANNEL_TYPE_TEXT) {
         SimpleTextChannelPtr textChannel = SimpleTextChannel::create(baseChannel.data());
         baseChannel->plugInterface(Tp::AbstractChannelInterfacePtr::dynamicCast(textChannel));
-        connect(textChannel.data(), &SimpleTextChannel::sendMessage, this, &SimpleConnection::sendMessage);
+        connect(textChannel.data(), &SimpleTextChannel::sendMessage,
+                this, &SimpleConnection::onChannelSendMessageRequested);
     }
 
     return baseChannel;
@@ -412,6 +414,12 @@ void SimpleConnection::receiveMessage(const QString &identifier, const QString &
     }
 
     textChannel->addIncomingMessage(message);
+
+    SimpleCM::Message apiMessage;
+    apiMessage.chat = SimpleCM::Chat::fromContactId(identifier);
+    apiMessage.from = identifier;
+    apiMessage.text = message;
+    emit newMessage(apiMessage);
 }
 
 void SimpleConnection::setContactList(const QStringList &identifiers)
@@ -446,4 +454,14 @@ void SimpleConnection::setContactPresence(const QString &identifier, const QStri
 uint SimpleConnection::getHandle(const QString &identifier) const
 {
     return m_handles.key(identifier, 0);
+}
+
+void SimpleConnection::onChannelSendMessageRequested(const QString &target, const QString &content)
+{
+    SimpleCM::Message message;
+    message.chat = SimpleCM::Chat::fromContactId(target);
+    message.from = selfID();
+    message.text = content;
+
+    emit newMessage(message);
 }
