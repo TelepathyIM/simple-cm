@@ -3,10 +3,14 @@
 
 #include <QtCore/QtGlobal>
 
-#if defined(SIMPLECM_LIBRARY)
-#define SIMPLECM_EXPORT Q_DECL_EXPORT
+#ifdef SIMPLECM_STATIC
+#  define SIMPLECM_EXPORT
 #else
-#define SIMPLECM_EXPORT Q_DECL_IMPORT
-#endif
+#  if defined(BUILD_SIMPLECM_LIB)
+#    define SIMPLECM_EXPORT Q_DECL_EXPORT
+#  else
+#    define SIMPLECM_EXPORT Q_DECL_IMPORT
+#  endif
+#endif // SIMPLECM_STATIC
 
-#endif
+#endif // SIMPLECM_EXPORT_H

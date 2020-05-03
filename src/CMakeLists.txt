@@ -22,8 +22,11 @@ set(public_HEADERS
 add_library(simplecm-qt${QT_VERSION_MAJOR} STATIC ${simplecm_SOURCES})
 add_library(SimpleCM::SimpleCM ALIAS simplecm-qt${QT_VERSION_MAJOR})
 
+target_compile_definitions(simplecm-qt${QT_VERSION_MAJOR} PUBLIC
+    SIMPLECM_STATIC
+)
 target_compile_definitions(simplecm-qt${QT_VERSION_MAJOR} PRIVATE
-    SIMPLECM_LIBRARY
+    BUILD_SIMPLECM_LIB
 )
 
 set(SIMPLECM_INCLUDE_DIR ${CMAKE_INSTALL_FULL_INCLUDEDIR}/SimpleCM)
