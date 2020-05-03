@@ -56,6 +56,10 @@ public:
 
     QString selfContactIdentifier() const;
 
+#if defined(BUILD_SIMPLECM_LIB)
+    bool prepare();
+#endif
+
 signals:
     void messageSent(const Message &message);
 

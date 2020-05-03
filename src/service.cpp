@@ -10,6 +10,7 @@
 
 enum class ServiceState {
     Initial,
+    Prepared,
     Running,
 };
 
@@ -40,7 +41,7 @@ Service::Service(QObject *parent)
 bool Service::isRunning() const
 {
     Q_D(const Service);
-    return d->running;
+    return d->state == ServiceState::Running;
 }
 
 QString Service::selfContactIdentifier() const
@@ -49,25 +50,50 @@ QString Service::selfContactIdentifier() const
     return d->selfContactId;
 }
 
-bool Service::start()
+bool Service::prepare()
 {
-    Q_D(Service);
-    if (d->state == ServiceState::Running) {
+    if (m_d->state != ServiceState::Initial) {
+        return false;
+    }
+    if (m_d->protocolName.isEmpty()) {
+        return false;
+    }
+    if (m_d->cmName.isEmpty()) {
         return false;
     }
 
-    d->state = ServiceState::Running;
+    Tp::BaseProtocolPtr &baseProtocol = m_d->baseProtocol;
+    Tp::BaseConnectionManagerPtr &connectionManager = m_d->baseCm;
+    baseProtocol = Tp::BaseProtocol::create<SimpleProtocol>(QDBusConnection::sessionBus(), m_d->protocolName);
+    connectionManager = Tp::BaseConnectionManager::create(QDBusConnection::sessionBus(), m_d->cmName);
 
-    d->baseProtocol = Tp::BaseProtocol::create<SimpleProtocol>(QDBusConnection::sessionBus(), d->protocolName);
-    d->baseCm = Tp::BaseConnectionManager::create(QDBusConnection::sessionBus(), d->cmName);
+    m_d->protocol = static_cast<SimpleProtocol*>(baseProtocol.data());
+    m_d->protocol->setConnectionManagerName(m_d->cmName);
+    connectionManager->addProtocol(baseProtocol);
 
-    d->protocol = static_cast<SimpleProtocol*>(d->baseProtocol.data());
-    d->protocol->setConnectionManagerName(d->cmName);
+    m_d->state = ServiceState::Prepared;
+    return true;
+}
+
+bool Service::start()
+{
+    if (m_d->state == ServiceState::Running) {
+        return false;
+    }
+
+    if (m_d->state != ServiceState::Prepared) {
+        if (!prepare()) {
+            return false;
+        }
+    }
+
+    m_d->state = ServiceState::Running;
+
     // d->protocol->setEnglishName(ui->displayNameEdit->text());
     // d->protocol->setIconName(ui->iconEdit->text());
     // d->protocol->setVCardField(ui->vcardField->text());
 
-    connect(d->protocol, &SimpleProtocol::clientSendMessage,
+    connect(m_d->protocol, &SimpleProtocol::clientSendMessage,
             this, [this](const QString &targetId, const QString &message) {
 
         Message clientToServiceMessage;
@@ -77,9 +103,8 @@ bool Service::start()
         emit messageSent(clientToServiceMessage);
     });
 
-    d->baseCm->addProtocol(d->baseProtocol);
 
-    return d->baseCm->registerObject();
+    return m_d->baseCm->registerObject();
 }
 
 bool Service::stop()
