@@ -84,7 +84,7 @@ void AccountHelper::addAccount()
 {
     QString displayName;
     const QVariantMap parameters = {
-        { "self_id", "abc_self_id" },
+        { "self_id", "local_user" },
     };
     const QVariantMap properties = {
         { TP_QT_IFACE_ACCOUNT + QLatin1String(".Enabled"), false },
