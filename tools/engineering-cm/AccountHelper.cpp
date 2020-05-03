@@ -117,7 +117,7 @@ void AccountHelper::connectAccount(const QString &identifier)
         return;
     }
 
-    if (m_currentAccount) {
+    if (m_accountStatus != AccountStatus::NoAccount) {
         qCWarning(lcSimpleAccountHelper) << __func__ << "Active account already selected";
         return;
     }
@@ -313,6 +313,8 @@ void AccountHelper::onAccountValid()
     qCDebug(lcSimpleAccountHelper) << __func__;
     if (!m_currentAccount->isValidAccount()) {
         qCCritical(lcSimpleAccountHelper) << __func__ << "The account is still invalid.";
+
+        disconnectAccount(currentAccountId());
         return;
     }
     updateSuitableAccounts();
