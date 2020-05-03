@@ -7,6 +7,9 @@ set(simplecm_SOURCES
     simplecm_export.h
     service.cpp
     service.h
+    ServiceLowLevel.cpp
+    ServiceLowLevel_p.h
+    ServiceLowLevel.h
     textchannel.cpp
     textchannel.h
 )
@@ -16,6 +19,7 @@ set(public_HEADERS
     protocol.h
     simplecm_export.h
     service.h
+    ServiceLowLevel.h
     textchannel.h
 )
 

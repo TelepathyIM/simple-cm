@@ -7,6 +7,7 @@
 #include <TelepathyQt/Types>
 
 #include "protocol.h"
+#include "ServiceLowLevel_p.h"
 
 enum class ServiceState {
     Initial,
@@ -19,20 +20,22 @@ namespace SimpleCM {
 class ServicePrivate
 {
 public:
-    Tp::BaseProtocolPtr baseProtocol;
-    Tp::BaseConnectionManagerPtr baseCm;
-
     ServiceState state = ServiceState::Initial;
     QString selfContactId;
     QString cmName;
     QString protocolName;
     SimpleProtocol *protocol = nullptr;
+    ServiceLowLevel *lowLevel = nullptr;
+    ServiceLowLevelPrivate *lowLevelData = nullptr;
 };
 
 Service::Service(QObject *parent)
     : QObject(parent)
-    , m_d(new ServicePrivate)
 {
+    m_d = new ServicePrivate();
+    m_d->lowLevel = ServiceLowLevelPrivate::createLowLevel(this);
+    m_d->lowLevelData = ServiceLowLevelPrivate::get(m_d->lowLevel);
+
     Tp::registerTypes();
     Tp::enableDebug(true);
     Tp::enableWarnings(true);
@@ -50,6 +53,11 @@ QString Service::selfContactIdentifier() const
     return d->selfContactId;
 }
 
+ServiceLowLevel *Service::lowLevel()
+{
+    return m_d->lowLevel;
+}
+
 bool Service::prepare()
 {
     if (m_d->state != ServiceState::Initial) {
@@ -62,8 +70,8 @@ bool Service::prepare()
         return false;
     }
 
-    Tp::BaseProtocolPtr &baseProtocol = m_d->baseProtocol;
-    Tp::BaseConnectionManagerPtr &connectionManager = m_d->baseCm;
+    Tp::BaseProtocolPtr &baseProtocol = m_d->lowLevelData->baseProtocol;
+    Tp::BaseConnectionManagerPtr &connectionManager = m_d->lowLevelData->connectionManager;
     baseProtocol = Tp::BaseProtocol::create<SimpleProtocol>(QDBusConnection::sessionBus(), m_d->protocolName);
     connectionManager = Tp::BaseConnectionManager::create(QDBusConnection::sessionBus(), m_d->cmName);
 
@@ -103,19 +111,14 @@ bool Service::start()
         emit messageSent(clientToServiceMessage);
     });
 
-
-    return m_d->baseCm->registerObject();
+    return m_d->lowLevelData->connectionManager->registerObject();
 }
 
 bool Service::stop()
 {
     Q_D(Service);
-    if (d->state != ServiceState::Running) {
-        return false;
-    }
-
-    d->baseCm.reset();
-    d->baseProtocol.reset();
+    d->lowLevelData->connectionManager.reset();
+    d->lowLevelData->baseProtocol.reset();
     d->protocol = nullptr;
     d->state = ServiceState::Initial;
 

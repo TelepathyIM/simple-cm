@@ -45,6 +45,7 @@ struct Message
     QString text;
 };
 
+class ServiceLowLevel;
 class ServicePrivate;
 class Service : public QObject
 {
@@ -56,8 +57,9 @@ public:
 
     QString selfContactIdentifier() const;
 
-#if defined(BUILD_SIMPLECM_LIB)
+#if defined(BUILD_SIMPLECM_LIB) || defined(SIMPLECM_ENABLE_LOWLEVEL_API)
     bool prepare();
+    ServiceLowLevel *lowLevel();
 #endif
 
 signals:
