@@ -36,7 +36,7 @@ private slots:
     void on_sendMessageButton_clicked();
 
     void addMessageFromSelfContact(const SimpleCM::Message &message);
-    void addMessage(QString sender, QString text);
+    void addMessage(const QString &targetContact, const QString &text);
 
     void on_addAccount_clicked();
     void on_removeAccount_clicked();

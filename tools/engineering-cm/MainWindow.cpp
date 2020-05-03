@@ -136,9 +136,9 @@ void MainWindow::addMessageFromSelfContact(const SimpleCM::Message &message)
     ui->allMessagesLog->appendPlainText(message.text);
 }
 
-void MainWindow::addMessage(QString sender, QString text)
+void MainWindow::addMessage(const QString &targetContact, const QString &text)
 {
-    m_contactsModel->ensureContact(sender);
+    m_contactsModel->ensureContact(targetContact);
 
     if (sender == ui->messagingSenderName->text()) {
         ui->messagesLog->appendPlainText("<" + text);
@@ -147,8 +147,8 @@ void MainWindow::addMessage(QString sender, QString text)
     ui->allMessagesLog->appendPlainText(text);
 
     SimpleCM::Message message;
-    message.from = sender;
-    message.chat = SimpleCM::Chat::fromContactId(sender);
+    message.from = targetContact;
+    message.chat = SimpleCM::Chat::fromContactId(targetContact);
     message.text = text;
 
     m_service->addMessage(message);
