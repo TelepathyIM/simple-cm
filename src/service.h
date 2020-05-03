@@ -7,7 +7,7 @@
 
 namespace SimpleCM {
 
-struct Message
+struct SIMPLECM_EXPORT Message
 {
     Chat to;
     QString from;
@@ -16,7 +16,7 @@ struct Message
 
 class ServiceLowLevel;
 class ServicePrivate;
-class Service : public QObject
+class SIMPLECM_EXPORT Service : public QObject
 {
     Q_OBJECT
 public:

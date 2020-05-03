@@ -18,12 +18,9 @@ set(simplecm_SOURCES
 
 set(public_HEADERS
     Chat.hpp
-    connection.h
-    protocol.h
     simplecm_export.h
     service.h
     ServiceLowLevel.h
-    textchannel.h
 )
 
 add_library(simplecm-qt${QT_VERSION_MAJOR} STATIC ${simplecm_SOURCES})

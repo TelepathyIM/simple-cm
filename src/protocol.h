@@ -20,7 +20,7 @@
 
 class SimpleConnection;
 
-class SIMPLECM_EXPORT SimpleProtocol : public Tp::BaseProtocol
+class SimpleProtocol : public Tp::BaseProtocol
 {
     Q_OBJECT
     Q_DISABLE_COPY(SimpleProtocol)

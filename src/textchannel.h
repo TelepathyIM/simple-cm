@@ -22,7 +22,7 @@ class SimpleTextChannel;
 
 typedef Tp::SharedPtr<SimpleTextChannel> SimpleTextChannelPtr;
 
-class SIMPLECM_EXPORT SimpleTextChannel : public Tp::BaseChannelTextType
+class SimpleTextChannel : public Tp::BaseChannelTextType
 {
     Q_OBJECT
 public:

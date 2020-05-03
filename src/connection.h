@@ -29,7 +29,7 @@ class Chat;
 
 } // SimpleCM
 
-class SIMPLECM_EXPORT SimpleConnection : public Tp::BaseConnection
+class SimpleConnection : public Tp::BaseConnection
 {
     Q_OBJECT
 public:
