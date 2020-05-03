@@ -97,10 +97,6 @@ bool Service::start()
 
     m_d->state = ServiceState::Running;
 
-    // d->protocol->setEnglishName(ui->displayNameEdit->text());
-    // d->protocol->setIconName(ui->iconEdit->text());
-    // d->protocol->setVCardField(ui->vcardField->text());
-
     connect(m_d->protocol, &SimpleProtocol::clientSendMessage,
             this, [this](const QString &targetId, const QString &message) {
 

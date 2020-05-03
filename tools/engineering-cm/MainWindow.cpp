@@ -5,7 +5,14 @@
 #include "CComboBoxDelegate.hpp"
 #include "PresetsLoader.hpp"
 
+#ifndef SIMPLECM_ENABLE_LOWLEVEL_API
+#define SIMPLECM_ENABLE_LOWLEVEL_API
+#endif
+
+#include <TelepathyQt/BaseProtocol>
+
 #include <SimpleCM/Service>
+#include <SimpleCM/ServiceLowLevel>
 
 #include <QCompleter>
 
@@ -149,6 +156,14 @@ void MainWindow::startService(const QString &cmName, const QString &protocolName
 {
     m_service->setManagerName(cmName);
     m_service->setProtocolName(protocolName);
+
+    m_service->prepare();
+    SimpleCM::ServiceLowLevel *lowLevel = m_service->lowLevel();
+    Tp::BaseProtocolPtr protocol = lowLevel->getProtocol();
+    protocol->setVCardField(ui->protocolAddressibleVCardFields->text());
+    protocol->setEnglishName(ui->protocolDisplayName->text());
+    protocol->setIconName(ui->protocolIcon->text());
+
     m_service->start();
 
     m_accountHelper->setManagerName(cmName);
