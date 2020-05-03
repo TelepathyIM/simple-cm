@@ -19,6 +19,16 @@
 #include <TelepathyQt/BaseConnection>
 #include <TelepathyQt/BaseChannel>
 
+class SimpleTextChannel;
+
+typedef Tp::SharedPtr<SimpleTextChannel> SimpleTextChannelPtr;
+
+namespace SimpleCM {
+
+class Chat;
+
+} // SimpleCM
+
 class SIMPLECM_EXPORT SimpleConnection : public Tp::BaseConnection
 {
     Q_OBJECT
@@ -36,6 +46,7 @@ public:
     QStringList inspectHandles(uint handleType, const Tp::UIntList &handles, Tp::DBusError *error);
 
     Tp::BaseChannelPtr createChannel(const QVariantMap &request, Tp::DBusError *error);
+    SimpleTextChannelPtr ensureTextChannel(const SimpleCM::Chat &chat);
 
     Tp::UIntList requestHandles(uint handleType, const QStringList &identifiers, Tp::DBusError *error);
 

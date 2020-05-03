@@ -13,6 +13,7 @@
 
 #include "connection.h"
 
+#include "Chat.hpp"
 #include "textchannel.h"
 
 #include <TelepathyQt/Constants>
@@ -211,6 +212,38 @@ Tp::BaseChannelPtr SimpleConnection::createChannel(const QVariantMap &request, T
     return baseChannel;
 }
 
+SimpleTextChannelPtr SimpleConnection::ensureTextChannel(const SimpleCM::Chat &chat)
+{
+    uint initiatorHandle = 0;
+    uint targetHandle = 0;
+    Tp::HandleType targetHandleType = Tp::HandleTypeNone;
+
+    if (chat.type == SimpleCM::Chat::Contact) {
+        targetHandleType = Tp::HandleTypeContact;
+        targetHandle = ensureContact(chat.identifier);
+        initiatorHandle = targetHandle;
+    } else {
+        return SimpleTextChannelPtr();
+    }
+
+    Tp::DBusError error;
+    bool yours;
+
+    QVariantMap request;
+    request[TP_QT_IFACE_CHANNEL + QLatin1String(".ChannelType")] = TP_QT_IFACE_CHANNEL_TYPE_TEXT;
+    request[TP_QT_IFACE_CHANNEL + QLatin1String(".TargetHandle")] = targetHandle;
+    request[TP_QT_IFACE_CHANNEL + QLatin1String(".TargetHandleType")] = targetHandleType;
+    request[TP_QT_IFACE_CHANNEL + QLatin1String(".InitiatorHandle")] = initiatorHandle;
+
+    Tp::BaseChannelPtr channel = ensureChannel(request, yours, /* suppressHandler */ false, &error);
+    if (error.isValid()) {
+        qWarning() << Q_FUNC_INFO << "ensureChannel failed:" << error.name() << " " << error.message();
+        return SimpleTextChannelPtr();
+    }
+
+    return SimpleTextChannelPtr::dynamicCast(channel->interface(TP_QT_IFACE_CHANNEL_TYPE_TEXT));
+}
+
 Tp::UIntList SimpleConnection::requestHandles(uint handleType, const QStringList &identifiers, Tp::DBusError *error)
 {
     qDebug() << Q_FUNC_INFO << identifiers;
@@ -371,26 +404,7 @@ void SimpleConnection::setSubscriptionState(const QStringList &identifiers, cons
 /* Receive message from someone to ourself */
 void SimpleConnection::receiveMessage(const QString &identifier, const QString &message)
 {
-    uint initiatorHandle, targetHandle;
-
-    initiatorHandle = targetHandle = ensureContact(identifier);
-
-    Tp::DBusError error;
-    bool yours;
-
-    QVariantMap request;
-    request[TP_QT_IFACE_CHANNEL + QLatin1String(".ChannelType")] = TP_QT_IFACE_CHANNEL_TYPE_TEXT;
-    request[TP_QT_IFACE_CHANNEL + QLatin1String(".TargetHandle")] = targetHandle;
-    request[TP_QT_IFACE_CHANNEL + QLatin1String(".TargetHandleType")] = Tp::HandleTypeContact;
-    request[TP_QT_IFACE_CHANNEL + QLatin1String(".InitiatorHandle")] = initiatorHandle;
-
-    Tp::BaseChannelPtr channel = ensureChannel(request, yours, /* suppressHandler */ false, &error);
-    if (error.isValid()) {
-        qWarning() << Q_FUNC_INFO << "ensureChannel failed:" << error.name() << " " << error.message();
-        return;
-    }
-
-    SimpleTextChannelPtr textChannel = SimpleTextChannelPtr::dynamicCast(channel->interface(TP_QT_IFACE_CHANNEL_TYPE_TEXT));
+    SimpleTextChannelPtr textChannel = ensureTextChannel(SimpleCM::Chat::fromContactId(identifier));
 
     if (!textChannel) {
         qDebug() << Q_FUNC_INFO << "Error: channel is not a SimpleTextChannel?";
