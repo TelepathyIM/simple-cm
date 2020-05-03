@@ -82,18 +82,18 @@ void SimpleProtocol::setContactPresence(const QString &identifier, const QString
     emit contactPresenceChanged(identifier, presence);
 }
 
-void SimpleProtocol::connectionCreatedEvent(SimpleConnection *newConnection)
+void SimpleProtocol::connectionCreatedEvent(SimpleConnectionPtr connection)
 {
     connect(this, &SimpleProtocol::receiveMessage,
-            newConnection, &SimpleConnection::receiveMessage);
+            connection.data(), &SimpleConnection::receiveMessage);
     connect(this, &SimpleProtocol::contactsListChanged,
-            newConnection, &SimpleConnection::setContactList);
+            connection.data(), &SimpleConnection::setContactList);
     connect(this, &SimpleProtocol::addContactRequested ,
-            newConnection, &SimpleConnection::addContact);
+            connection.data(), &SimpleConnection::addContact);
     connect(this, &SimpleProtocol::contactPresenceChanged,
-            newConnection, &SimpleConnection::setContactPresence);
+            connection.data(), &SimpleConnection::setContactPresence);
 
-    connect(newConnection, &SimpleConnection::sendMessage,
+    connect(connection.data(), &SimpleConnection::sendMessage,
             this, &SimpleProtocol::clientSendMessage);
 }
 
@@ -102,10 +102,9 @@ Tp::BaseConnectionPtr SimpleProtocol::createConnection(const QVariantMap &parame
     Q_UNUSED(error)
 
     Tp::BaseConnectionPtr newConnection = Tp::BaseConnection::create<SimpleConnection>(m_connectionManagerName, this->name(), parameters);
+    SimpleConnectionPtr simpleConnection = SimpleConnectionPtr::dynamicCast(newConnection);
 
-    SimpleConnection *newSimpleConnection = (SimpleConnection *) newConnection.data();
-
-    connectionCreatedEvent(newSimpleConnection);
+    connectionCreatedEvent(simpleConnection);
 
     return newConnection;
 }

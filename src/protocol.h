@@ -19,6 +19,7 @@
 #include <TelepathyQt/BaseProtocol>
 
 class SimpleConnection;
+typedef Tp::SharedPtr<SimpleConnection> SimpleConnectionPtr;
 
 class SimpleProtocol : public Tp::BaseProtocol
 {
@@ -49,7 +50,7 @@ signals:
     void contactPresenceChanged(const QString &identifier, const QString &presence);
 
 protected:
-    virtual void connectionCreatedEvent(SimpleConnection *newConnection);
+    virtual void connectionCreatedEvent(SimpleConnectionPtr connection);
 
 private:
     Tp::BaseConnectionPtr createConnection(const QVariantMap &parameters, Tp::DBusError *error);
