@@ -8,6 +8,11 @@
 
 #include "protocol.h"
 
+enum class ServiceState {
+    Initial,
+    Running,
+};
+
 namespace SimpleCM {
 
 class ServicePrivate
@@ -16,7 +21,7 @@ public:
     Tp::BaseProtocolPtr baseProtocol;
     Tp::BaseConnectionManagerPtr baseCm;
 
-    bool running = false;
+    ServiceState state = ServiceState::Initial;
     QString selfContactId;
     QString cmName;
     QString protocolName;
@@ -47,11 +52,11 @@ QString Service::selfContactIdentifier() const
 bool Service::start()
 {
     Q_D(Service);
-    if (d->running) {
+    if (d->state == ServiceState::Running) {
         return false;
     }
 
-    d->running = true;
+    d->state = ServiceState::Running;
 
     d->baseProtocol = Tp::BaseProtocol::create<SimpleProtocol>(QDBusConnection::sessionBus(), d->protocolName);
     d->baseCm = Tp::BaseConnectionManager::create(QDBusConnection::sessionBus(), d->cmName);
@@ -80,14 +85,14 @@ bool Service::start()
 bool Service::stop()
 {
     Q_D(Service);
-    if (!d->running) {
+    if (d->state != ServiceState::Running) {
         return false;
     }
 
     d->baseCm.reset();
     d->baseProtocol.reset();
     d->protocol = nullptr;
-    d->running = false;
+    d->state = ServiceState::Initial;
 
     return true;
 }
