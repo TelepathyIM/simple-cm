@@ -19,9 +19,11 @@
 #include <TelepathyQt/BaseConnection>
 #include <TelepathyQt/BaseChannel>
 
+class SimpleConnection;
 class SimpleTextChannel;
 
 typedef Tp::SharedPtr<SimpleTextChannel> SimpleTextChannelPtr;
+typedef Tp::SharedPtr<SimpleConnection> SimpleConnectionPtr;
 
 namespace SimpleCM {
 

@@ -25,7 +25,10 @@ class Message;
 } // SimpleCM
 
 class SimpleConnection;
+class SimpleProtocol;
+
 typedef Tp::SharedPtr<SimpleConnection> SimpleConnectionPtr;
+typedef Tp::SharedPtr<SimpleProtocol> SimpleProtocolPtr;
 
 class SimpleProtocol : public Tp::BaseProtocol
 {

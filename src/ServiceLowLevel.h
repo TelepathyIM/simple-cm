@@ -7,6 +7,8 @@
 
 namespace SimpleCM {
 
+class Chat;
+
 class ServiceLowLevelPrivate;
 class ServiceLowLevel : public QObject
 {
@@ -14,6 +16,8 @@ class ServiceLowLevel : public QObject
 public:
     Tp::BaseProtocolPtr getProtocol();
     Tp::BaseConnectionManagerPtr getConnectionManager();
+
+    void sendJsonMessage(const Chat &target, const QByteArray &json);
 
 protected:
     explicit ServiceLowLevel(QObject *parent = nullptr);

@@ -1,5 +1,11 @@
 #include "ServiceLowLevel_p.h"
 
+#include "Chat.hpp"
+#include "connection.h"
+#include "JsonUtils.hpp"
+#include "protocol.h"
+#include "textchannel.h"
+
 #include <TelepathyQt/BaseConnectionManager>
 #include <TelepathyQt/BaseProtocol>
 
@@ -13,6 +19,31 @@ Tp::BaseProtocolPtr ServiceLowLevel::getProtocol()
 Tp::BaseConnectionManagerPtr ServiceLowLevel::getConnectionManager()
 {
     return m_d->connectionManager;
+}
+
+void ServiceLowLevel::sendJsonMessage(const Chat &target, const QByteArray &json)
+{
+    SimpleProtocolPtr protocol = SimpleProtocolPtr::dynamicCast(m_d->baseProtocol);
+    if (!protocol) {
+        return;
+    }
+
+    SimpleConnectionPtr connection = protocol->getConnection();
+    if (!connection) {
+        return;
+    }
+
+    SimpleTextChannelPtr textChannel = connection->ensureTextChannel(target);
+    if (!textChannel) {
+        return;
+    }
+
+    Tp::MessagePartList partList = JsonUtils::messageFromJson(json);
+    if (partList.isEmpty()) {
+        return;
+    }
+
+    textChannel->addReceivedMessage(partList);
 }
 
 ServiceLowLevel::ServiceLowLevel(QObject *parent)
