@@ -120,6 +120,28 @@ void MainWindow::on_sendMessageButton_clicked()
     addMessage(sender, message);
 }
 
+void MainWindow::on_messagingSendJson_clicked()
+{
+    if (!m_service->isRunning()) {
+        return;
+    }
+
+    QString targetId = ui->messagingSenderName->text();
+    QString json = ui->messageEdit->toPlainText();
+
+    ui->messageEdit->clear();
+
+    const SimpleCM::Chat peer = SimpleCM::Chat::fromContactId(targetId);
+    m_service->lowLevel()->sendJsonMessage(peer, json.toUtf8());
+
+    SimpleCM::Message message;
+    message.from = targetId;
+    message.chat = SimpleCM::Chat::fromContactId(targetId);
+    message.text = QLatin1String("<JSON>");
+
+    logMessage(message);
+}
+
 void MainWindow::onNewMessage(const SimpleCM::Message &message)
 {
     logMessage(message);

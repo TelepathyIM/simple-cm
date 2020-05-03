@@ -34,6 +34,7 @@ private slots:
 
     void on_contactListAddContact_clicked();
     void on_sendMessageButton_clicked();
+    void on_messagingSendJson_clicked();
 
     void onNewMessage(const SimpleCM::Message &message);
     void addMessage(const QString &targetContact, const QString &text);

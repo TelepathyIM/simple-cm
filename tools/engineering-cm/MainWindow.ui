@@ -297,10 +297,17 @@ mc-tool enable simplecm/simplecm/account0</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="0" colspan="3">
+            <item row="0" column="0" colspan="4">
              <widget class="QPlainTextEdit" name="messageEdit">
               <property name="placeholderText">
                <string>Your message (on the sender behalf)</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="3">
+             <widget class="QPushButton" name="messagingSendJson">
+              <property name="text">
+               <string>Send JSON</string>
               </property>
              </widget>
             </item>
