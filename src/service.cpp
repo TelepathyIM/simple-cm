@@ -6,6 +6,8 @@
 #include <TelepathyQt/Debug>
 #include <TelepathyQt/Types>
 
+#include "Chat.hpp"
+#include "Message.hpp"
 #include "protocol.h"
 #include "ServiceLowLevel_p.h"
 
@@ -101,7 +103,7 @@ bool Service::start()
             this, [this](const QString &targetId, const QString &message) {
 
         Message clientToServiceMessage;
-        clientToServiceMessage.to = Chat::fromContactId(targetId);
+        clientToServiceMessage.chat = Chat::fromContactId(targetId);
         clientToServiceMessage.text = message;
 
         emit messageSent(clientToServiceMessage);
@@ -160,7 +162,7 @@ void Service::setContactPresence(const QString &identifier, const QString &prese
 void Service::addMessage(const Message &message)
 {
     Q_D(Service);
-    d->protocol->addMessage(message.to.identifier, message.text);
+    d->protocol->addMessage(message.chat.identifier, message.text);
 }
 
 } // SimpleCM

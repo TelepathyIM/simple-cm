@@ -4,6 +4,7 @@ set(simplecm_SOURCES
     Chat.hpp
     connection.cpp
     connection.h
+    Message.hpp
     protocol.cpp
     protocol.h
     simplecm_export.h
@@ -18,6 +19,7 @@ set(simplecm_SOURCES
 
 set(public_HEADERS
     Chat.hpp
+    Message.hpp
     simplecm_export.h
     service.h
     ServiceLowLevel.h

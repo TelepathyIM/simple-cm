@@ -3,16 +3,11 @@
 
 #include <QObject>
 
-#include "Chat.hpp"
+#include "simplecm_export.h"
 
 namespace SimpleCM {
 
-struct SIMPLECM_EXPORT Message
-{
-    Chat to;
-    QString from;
-    QString text;
-};
+class Message;
 
 class ServiceLowLevel;
 class ServicePrivate;

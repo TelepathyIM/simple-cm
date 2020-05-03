@@ -11,6 +11,8 @@
 
 #include <TelepathyQt/BaseProtocol>
 
+#include <SimpleCM/Chat>
+#include <SimpleCM/Message>
 #include <SimpleCM/Service>
 #include <SimpleCM/ServiceLowLevel>
 
@@ -121,8 +123,8 @@ void MainWindow::on_sendMessageButton_clicked()
 void MainWindow::addMessageFromSelfContact(const SimpleCM::Message &message)
 {
     QString peerContact;
-    if (message.to.type == SimpleCM::Chat::Type::Contact) {
-        peerContact = message.to.identifier;
+    if (message.chat.type == SimpleCM::Chat::Type::Contact) {
+        peerContact = message.chat.identifier;
         m_contactsModel->ensureContact(peerContact);
     }
 
@@ -130,7 +132,7 @@ void MainWindow::addMessageFromSelfContact(const SimpleCM::Message &message)
         ui->messagesLog->appendPlainText(">" + message.text);
     }
 
-    ui->allMessagesLog->appendPlainText("Message to " + message.to.identifier + "\n");
+    ui->allMessagesLog->appendPlainText("Message to " + message.chat.identifier + "\n");
     ui->allMessagesLog->appendPlainText(message.text);
 }
 
@@ -146,7 +148,7 @@ void MainWindow::addMessage(QString sender, QString text)
 
     SimpleCM::Message message;
     message.from = sender;
-    message.to = SimpleCM::Chat::fromContactId(sender);
+    message.chat = SimpleCM::Chat::fromContactId(sender);
     message.text = text;
 
     m_service->addMessage(message);
