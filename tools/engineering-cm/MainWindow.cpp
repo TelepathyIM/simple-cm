@@ -121,7 +121,7 @@ void MainWindow::on_sendMessageButton_clicked()
 void MainWindow::addMessageFromSelfContact(const SimpleCM::Message &message)
 {
     QString peerContact;
-    if (message.to.type == SimpleCM::Peer::Type::Contact) {
+    if (message.to.type == SimpleCM::Chat::Type::Contact) {
         peerContact = message.to.identifier;
         m_contactsModel->ensureContact(peerContact);
     }
@@ -146,7 +146,7 @@ void MainWindow::addMessage(QString sender, QString text)
 
     SimpleCM::Message message;
     message.from = sender;
-    message.to = SimpleCM::Peer::fromContactId(sender);
+    message.to = SimpleCM::Chat::fromContactId(sender);
     message.text = text;
 
     m_service->addMessage(message);

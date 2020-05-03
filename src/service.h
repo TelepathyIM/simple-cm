@@ -3,44 +3,13 @@
 
 #include <QObject>
 
+#include "Chat.hpp"
+
 namespace SimpleCM {
-
-struct Peer
-{
-    enum Type {
-        Invalid,
-        Contact,
-        Room,
-    };
-
-    Peer() = default;
-
-    Peer(const QString &id, Type t) : type(t), identifier(id)
-    {
-    }
-
-    Type type = Type::Invalid;
-    QString identifier;
-
-    bool operator==(const Peer &p) const
-    {
-        return (p.type == type) && (p.identifier == identifier);
-    }
-
-    static Peer fromContactId(const QString &id)
-    {
-        return Peer(id, Type::Contact);
-    }
-
-    static Peer fromRoomId(const QString &id)
-    {
-        return Peer(id, Type::Room);
-    }
-};
 
 struct Message
 {
-    Peer to;
+    Chat to;
     QString from;
     QString text;
 };

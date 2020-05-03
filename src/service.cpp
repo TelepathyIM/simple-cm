@@ -101,7 +101,7 @@ bool Service::start()
             this, [this](const QString &targetId, const QString &message) {
 
         Message clientToServiceMessage;
-        clientToServiceMessage.to = Peer::fromContactId(targetId);
+        clientToServiceMessage.to = Chat::fromContactId(targetId);
         clientToServiceMessage.text = message;
 
         emit messageSent(clientToServiceMessage);

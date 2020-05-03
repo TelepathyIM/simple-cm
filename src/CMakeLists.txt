@@ -1,5 +1,7 @@
 
 set(simplecm_SOURCES
+    Chat.cpp
+    Chat.hpp
     connection.cpp
     connection.h
     protocol.cpp
@@ -15,6 +17,7 @@ set(simplecm_SOURCES
 )
 
 set(public_HEADERS
+    Chat.hpp
     connection.h
     protocol.h
     simplecm_export.h
