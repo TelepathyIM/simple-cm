@@ -4,6 +4,8 @@ set(simplecm_SOURCES
     Chat.hpp
     connection.cpp
     connection.h
+    JsonUtils.cpp
+    JsonUtils.hpp
     Message.hpp
     protocol.cpp
     protocol.h
