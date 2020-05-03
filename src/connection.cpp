@@ -86,7 +86,7 @@ SimpleConnection::SimpleConnection(const QDBusConnection &dbusConnection, const 
         m_selfId = parameters.value(QLatin1String("self_id")).toString();
     }
 
-    setSelfHandle(addContact(m_selfId));
+    setSelfContact(addContact(m_selfId), m_selfId);
 
     setConnectCallback(Tp::memFun(this, &SimpleConnection::connectCallback));
     setInspectHandlesCallback(Tp::memFun(this, &SimpleConnection::inspectHandles));
