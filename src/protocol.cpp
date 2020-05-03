@@ -62,6 +62,11 @@ void SimpleProtocol::setConnectionManagerName(const QString &newName)
     m_connectionManagerName = newName;
 }
 
+SimpleConnectionPtr SimpleProtocol::getConnection() const
+{
+    return m_connection;
+}
+
 void SimpleProtocol::addMessage(QString sender, QString message)
 {
     emit receiveMessage(sender, message);
@@ -95,6 +100,8 @@ void SimpleProtocol::connectionCreatedEvent(SimpleConnectionPtr connection)
 
     connect(connection.data(), &SimpleConnection::sendMessage,
             this, &SimpleProtocol::clientSendMessage);
+
+    m_connection = connection;
 }
 
 Tp::BaseConnectionPtr SimpleProtocol::createConnection(const QVariantMap &parameters, Tp::DBusError *error)

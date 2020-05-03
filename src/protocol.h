@@ -33,6 +33,8 @@ public:
     QString connectionManagerName() const;
     void setConnectionManagerName(const QString &newName);
 
+    SimpleConnectionPtr getConnection() const;
+
 public slots:
     void addMessage(QString sender, QString message);
     void addContact(const QString &contact);
@@ -67,6 +69,7 @@ private:
     Tp::BaseProtocolPresenceInterfacePtr presenceIface;
 
     QString m_connectionManagerName;
+    SimpleConnectionPtr m_connection;
 };
 
 #endif // SIMPLECM_PROTOCOL_H
