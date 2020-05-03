@@ -122,36 +122,40 @@ void MainWindow::on_sendMessageButton_clicked()
 
 void MainWindow::addMessageFromSelfContact(const SimpleCM::Message &message)
 {
+    logMessage(message);
+}
+
+void MainWindow::addMessage(const QString &targetContact, const QString &text)
+{
+    SimpleCM::Message message;
+    message.from = targetContact;
+    message.chat = SimpleCM::Chat::fromContactId(targetContact);
+    message.text = text;
+
+    logMessage(message);
+
+    m_service->addMessage(message);
+}
+
+void MainWindow::logMessage(const SimpleCM::Message &message)
+{
     QString peerContact;
     if (message.chat.type == SimpleCM::Chat::Type::Contact) {
         peerContact = message.chat.identifier;
         m_contactsModel->ensureContact(peerContact);
     }
 
-    if (peerContact == ui->messagingSenderName->text()) {
-        ui->messagesLog->appendPlainText(">" + message.text);
+    QString logText = tr("Message in chat with %1 from %2\n").arg(peerContact, message.from);
+    ui->allMessagesLog->appendPlainText(logText);
+
+    if (ui->messagingSenderName->text() == peerContact) {
+        bool fromRemoteUser = message.chat.identifier == message.from;
+        if (fromRemoteUser) {
+            ui->messagesLog->appendPlainText("< " + message.text);
+        } else {
+            ui->messagesLog->appendPlainText("> " + message.text);
+        }
     }
-
-    ui->allMessagesLog->appendPlainText("Message to " + message.chat.identifier + "\n");
-    ui->allMessagesLog->appendPlainText(message.text);
-}
-
-void MainWindow::addMessage(const QString &targetContact, const QString &text)
-{
-    m_contactsModel->ensureContact(targetContact);
-
-    if (sender == ui->messagingSenderName->text()) {
-        ui->messagesLog->appendPlainText("<" + text);
-    }
-    ui->allMessagesLog->appendPlainText("Message from " + sender + "\n");
-    ui->allMessagesLog->appendPlainText(text);
-
-    SimpleCM::Message message;
-    message.from = targetContact;
-    message.chat = SimpleCM::Chat::fromContactId(targetContact);
-    message.text = text;
-
-    m_service->addMessage(message);
 }
 
 void MainWindow::startService(const QString &cmName, const QString &protocolName)

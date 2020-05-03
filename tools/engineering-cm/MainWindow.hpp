@@ -61,6 +61,8 @@ private:
     QString getSelectedAccount() const;
     QString getAccountId(const QModelIndex &accountIndex) const;
 
+    void logMessage(const SimpleCM::Message &message);
+
     static QString accountStatusToString(AccountHelper::AccountStatus status);
 
     Ui::MainWindow *ui;
