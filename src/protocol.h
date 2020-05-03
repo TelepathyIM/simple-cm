@@ -27,7 +27,7 @@ class SIMPLECM_EXPORT SimpleProtocol : public Tp::BaseProtocol
 
 public:
     SimpleProtocol(const QDBusConnection &dbusConnection, const QString &name);
-    virtual ~SimpleProtocol();
+    ~SimpleProtocol() override;
 
     QString connectionManagerName() const;
     void setConnectionManagerName(const QString &newName);
@@ -67,10 +67,5 @@ private:
 
     QString m_connectionManagerName;
 };
-
-inline QString SimpleProtocol::connectionManagerName() const
-{
-    return m_connectionManagerName;
-}
 
 #endif // SIMPLECM_PROTOCOL_H

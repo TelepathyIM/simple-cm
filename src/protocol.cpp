@@ -52,6 +52,11 @@ SimpleProtocol::~SimpleProtocol()
 {
 }
 
+QString SimpleProtocol::connectionManagerName() const
+{
+    return m_connectionManagerName;
+}
+
 void SimpleProtocol::setConnectionManagerName(const QString &newName)
 {
     m_connectionManagerName = newName;
