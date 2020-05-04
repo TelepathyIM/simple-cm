@@ -190,7 +190,7 @@ void AccountHelper::setCurrentAccountStatus(AccountHelper::AccountStatus status)
 
 void AccountHelper::updateSuitableAccounts()
 {
-    m_suitableAccounts.clear();
+    QList<Tp::AccountPtr> accounts;
     for (const Tp::AccountPtr &account : m_allAccounts) {
         if (account->protocolName() != m_protocolName) {
             continue;
@@ -198,11 +198,17 @@ void AccountHelper::updateSuitableAccounts()
         if (account->cmName() != m_managerName) {
             continue;
         }
-        m_suitableAccounts << account;
+        accounts << account;
         qCWarning(lcSimpleAccountHelper) << __func__
                                          << "Suitable account:" << account->uniqueIdentifier();
     }
 
+    setSuitableAccounts(accounts);
+}
+
+void AccountHelper::setSuitableAccounts(const QList<Tp::AccountPtr> &accounts)
+{
+    m_suitableAccounts = accounts;
     updateModelData();
 }
 

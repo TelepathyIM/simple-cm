@@ -70,6 +70,7 @@ protected:
 
     void setCurrentAccountStatus(AccountStatus status);
     void updateSuitableAccounts();
+    void setSuitableAccounts(const QList<Tp::AccountPtr> &accounts);
     void updateModelData();
 
     void reValidateAccount();
