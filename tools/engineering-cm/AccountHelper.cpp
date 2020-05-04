@@ -233,7 +233,12 @@ void AccountHelper::setSuitableAccounts(const QList<Tp::AccountPtr> &accounts)
             trackAccount(newAccount);
         }
     }
+
     m_suitableAccounts = accounts;
+    const auto comparator = [](const Tp::AccountPtr &left, const Tp::AccountPtr &right) {
+        return left->uniqueIdentifier() < right->uniqueIdentifier();
+    };
+    std::sort(m_suitableAccounts.begin(), m_suitableAccounts.end(), comparator);
     updateModelData();
 }
 
