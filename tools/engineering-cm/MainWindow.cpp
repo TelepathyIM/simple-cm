@@ -25,8 +25,12 @@ QString MainWindow::accountStatusToString(AccountHelper::AccountStatus status)
         return tr("No account");
     case AccountHelper::AccountStatus::Initialization:
         return tr("Initialization");
-    case AccountHelper::AccountStatus::ReValidation:
+    case AccountHelper::AccountStatus::NeedToEnable:
+        return tr("Enabling");
+    case AccountHelper::AccountStatus::NeedToValidate:
         return tr("Re-validation");
+    case AccountHelper::AccountStatus::NeedToConnect:
+        return tr("Connecting");
     case AccountHelper::AccountStatus::Connected:
         return tr("Connected");
     case AccountHelper::AccountStatus::Disconnected:
@@ -264,10 +268,11 @@ QString MainWindow::getSelectedAccount() const
 
 QString MainWindow::getAccountId(const QModelIndex &accountIndex) const
 {
+    const int column = AccountHelper::columnToInt(AccountHelper::AccountModelColumn::AccountId);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
-    QModelIndex accountIdIndex = accountIndex.siblingAtColumn(AccountHelper::AccountModelSection::AccountId);
+    QModelIndex accountIdIndex = accountIndex.siblingAtColumn(column);
 #else
-    QModelIndex accountIdIndex = accountIndex.sibling(accountIndex.row(), AccountHelper::AccountModelSection::AccountId);
+    QModelIndex accountIdIndex = accountIndex.sibling(accountIndex.row(), column);
 #endif
     return accountIdIndex.data().toString();
 }

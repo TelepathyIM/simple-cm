@@ -9,6 +9,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QAbstractItemModel)
 QT_FORWARD_DECLARE_CLASS(QModelIndex)
+QT_FORWARD_DECLARE_CLASS(QStandardItem)
 QT_FORWARD_DECLARE_CLASS(QStandardItemModel)
 
 class AccountHelper : public QObject
@@ -18,7 +19,9 @@ public:
     enum class AccountStatus {
         NoAccount,
         Initialization,
-        ReValidation,
+        NeedToEnable,
+        NeedToValidate,
+        NeedToConnect,
         Connected,
         Disconnected,
     };
@@ -28,17 +31,21 @@ public:
 
     QAbstractItemModel *accountsModel();
 
-    enum AccountModelSection {
+    enum class AccountModelColumn {
         AccountId,
         AccountEnabled,
         AccountValid,
-        SectionsCount,
+        ColumnsCount,
+        Invalid,
     };
 
     QString currentAccountId() const;
     AccountStatus currentAccountStatus() const;
 
     Tp::AccountPtr getAccountById(const QString &identifier) const;
+
+    static int columnToInt(AccountModelColumn column);
+    static AccountModelColumn columnFromInt(int columnInt);
 
 public slots:
     void start();
@@ -60,22 +67,29 @@ protected slots:
     void onAccountManagerReady(Tp::PendingOperation *operation);
     void onNewAccount(const Tp::AccountPtr &account);
     void onAccountCreated(Tp::PendingOperation *operation);
-    void onAccountValid();
+    void onCurrentAccountParametersChanged(Tp::PendingOperation *operation);
     void onAccountSetEnableFinished(Tp::PendingOperation *operation = nullptr);
     void onAccountStateChanged();
-    void onAccountEnabled();
+    void onAccountValidityChanged();
+    void onAccountRequestedPresenceChanged();
+    void onAccountCurrentPresenceChanged();
 
 protected:
     void initAccountManager();
 
+    void disconnectAccount(const Tp::AccountPtr &account);
     void setCurrentAccountStatus(AccountStatus status);
     void updateSuitableAccounts();
     void setSuitableAccounts(const QList<Tp::AccountPtr> &accounts);
+    void trackAccount(const Tp::AccountPtr &account);
+    void stopTrackingAccount(const Tp::AccountPtr &account);
     void updateModelData();
+    void updateAccountData(const Tp::AccountPtr &account, AccountModelColumn column);
+    void updateModelItemData(QStandardItem *item, const Tp::AccountPtr &account, int columnHint = -1);
 
-    void reValidateAccount();
-    void enableAccount();
-    void requestAccountOnline();
+    void activateCurrentAccount();
+    void reValidateCurrentAccount();
+    void enableCurrentAccount();
     Tp::PendingOperation *requestAccountPresence(const Tp::AccountPtr &account, Tp::ConnectionPresenceType type);
 
 protected:
