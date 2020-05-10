@@ -5,8 +5,9 @@
 #include <TelepathyQt/PendingFailure>
 #include <TelepathyQt/PendingStringList>
 
+#include "HelperAccountsModel.hpp"
+
 #include <QLoggingCategory>
-#include <QStandardItemModel>
 
 Q_LOGGING_CATEGORY(lcSimpleAccountHelper, "simple.accountHelper", QtDebugMsg)
 
@@ -15,12 +16,14 @@ AccountHelper::AccountHelper(QObject *parent)
 {
 }
 
-QAbstractItemModel *AccountHelper::accountsModel()
+AccountsModel *AccountHelper::accountsModel()
 {
     if (!m_accountsModel) {
-        m_accountsModel = new QStandardItemModel(this);
-        m_accountsModel->setColumnCount(columnToInt(AccountModelColumn::ColumnsCount));
-        updateModelData();
+        m_accountsModel = new HelperAccountsModel(this);
+        if (m_accountManager) {
+            m_accountsModel->init(m_accountManager);
+            m_accountsModel->setFilterRules(m_managerName, m_protocolName);
+        }
     }
 
     return m_accountsModel;
@@ -38,33 +41,28 @@ AccountHelper::AccountStatus AccountHelper::currentAccountStatus() const
 
 Tp::AccountPtr AccountHelper::getAccountById(const QString &identifier) const
 {
-    for (const Tp::AccountPtr &suitableAccount : m_suitableAccounts) {
-        if (suitableAccount->uniqueIdentifier() != identifier) {
+    if (!m_accountManager) {
+        return Tp::AccountPtr();
+    }
+    for (const Tp::AccountPtr &account : m_accountManager->allAccounts()) {
+        if (account->uniqueIdentifier() != identifier) {
             continue;
         }
-        return suitableAccount;
+        return account;
     }
 
     return Tp::AccountPtr();
-}
-
-int AccountHelper::columnToInt(AccountHelper::AccountModelColumn column)
-{
-    return static_cast<int>(column);
-}
-
-AccountHelper::AccountModelColumn AccountHelper::columnFromInt(int columnInt)
-{
-    if ((columnInt < 0) || (columnInt > static_cast<int>(AccountModelColumn::ColumnsCount))) {
-        return AccountModelColumn::Invalid;
-    }
-    return static_cast<AccountModelColumn>(columnInt);
 }
 
 void AccountHelper::start()
 {
     if (!m_accountManager) {
         initAccountManager();
+    }
+
+    if (m_accountsModel) {
+        m_accountsModel->init(m_accountManager);
+        m_accountsModel->setFilterRules(m_managerName, m_protocolName);
     }
 }
 
@@ -100,7 +98,9 @@ void AccountHelper::addAccount()
     Tp::PendingAccount *account = m_accountManager->createAccount(m_managerName, m_protocolName,
                                                                   displayName, parameters,
                                                                   properties);
-    connect(account, &Tp::PendingOperation::finished, this, &AccountHelper::onAccountCreated);
+    account->setObjectName("createAccount()");
+    connect(account, &Tp::PendingOperation::finished,
+            this, &AccountHelper::onAccountOperationFinished);
 }
 
 void AccountHelper::removeAccount(const QString &identifier)
@@ -109,12 +109,11 @@ void AccountHelper::removeAccount(const QString &identifier)
     if (!account) {
         return;
     }
-    m_suitableAccounts.removeOne(account);
-    m_allAccounts.removeOne(account);
 
     Tp::PendingOperation *removeOperation = account->remove();
+    removeOperation->setObjectName("Remove account");
     connect(removeOperation, &Tp::PendingOperation::finished,
-            this, &AccountHelper::updateSuitableAccounts);
+            this, &AccountHelper::onAccountOperationFinished);
 }
 
 void AccountHelper::connectAccount(const QString &identifier)
@@ -129,9 +128,7 @@ void AccountHelper::connectAccount(const QString &identifier)
         return;
     }
 
-    m_currentAccount = getAccountById(identifier);
-    connect(m_currentAccount.data(), &Tp::Account::stateChanged,
-            this, &AccountHelper::onAccountStateChanged);
+    setCurrentAccount(getAccountById(identifier));
 
     if (!m_currentAccount) {
         qCWarning(lcSimpleAccountHelper) << __func__ << "Unable to find account" << identifier;
@@ -170,7 +167,7 @@ void AccountHelper::disconnectAccount(const Tp::AccountPtr &account)
     // We need to work with another copy to safely reset currentAccount value.
     Tp::AccountPtr acc = account;
     if (m_currentAccount == account) {
-        m_currentAccount.reset();
+        setCurrentAccount(Tp::AccountPtr());
         setCurrentAccountStatus(AccountStatus::NoAccount);
     }
 
@@ -178,6 +175,35 @@ void AccountHelper::disconnectAccount(const Tp::AccountPtr &account)
         requestAccountPresence(acc, Tp::ConnectionPresenceTypeOffline);
     }
     acc->setEnabled(false);
+}
+
+void AccountHelper::setCurrentAccount(const Tp::AccountPtr &account)
+{
+    if (m_currentAccount == account) {
+        return;
+    }
+
+    if (m_currentAccount) {
+        disconnect(m_currentAccount.data(), &Tp::Account::stateChanged,
+                   this, &AccountHelper::onAccountStateChanged);
+        disconnect(m_currentAccount.data(), &Tp::Account::validityChanged,
+                   this, &AccountHelper::onAccountValidityChanged);
+        disconnect(m_currentAccount.data(), &Tp::Account::requestedPresenceChanged,
+                   this, &AccountHelper::onAccountRequestedPresenceChanged);
+        disconnect(m_currentAccount.data(), &Tp::Account::currentPresenceChanged,
+                   this, &AccountHelper::onAccountCurrentPresenceChanged);
+    }
+    m_currentAccount = account;
+    if (m_currentAccount) {
+        connect(m_currentAccount.data(), &Tp::Account::stateChanged,
+                this, &AccountHelper::onAccountStateChanged);
+        connect(m_currentAccount.data(), &Tp::Account::validityChanged,
+                this, &AccountHelper::onAccountValidityChanged);
+        connect(m_currentAccount.data(), &Tp::Account::requestedPresenceChanged,
+                this, &AccountHelper::onAccountRequestedPresenceChanged);
+        connect(m_currentAccount.data(), &Tp::Account::currentPresenceChanged,
+                this, &AccountHelper::onAccountCurrentPresenceChanged);
+    }
 }
 
 void AccountHelper::initAccountManager()
@@ -189,8 +215,6 @@ void AccountHelper::initAccountManager()
 
     connect(m_accountManager->becomeReady(), &Tp::PendingOperation::finished,
             this, &AccountHelper::onAccountManagerReady);
-    connect(m_accountManager.data(), &Tp::AccountManager::newAccount,
-            this, &AccountHelper::onNewAccount);
 }
 
 void AccountHelper::setCurrentAccountStatus(AccountHelper::AccountStatus status)
@@ -201,122 +225,6 @@ void AccountHelper::setCurrentAccountStatus(AccountHelper::AccountStatus status)
     }
     m_accountStatus = status;
     emit currentAccountStatusChanged();
-}
-
-void AccountHelper::updateSuitableAccounts()
-{
-    QList<Tp::AccountPtr> accounts;
-    for (const Tp::AccountPtr &account : m_allAccounts) {
-        if (account->protocolName() != m_protocolName) {
-            continue;
-        }
-        if (account->cmName() != m_managerName) {
-            continue;
-        }
-        accounts << account;
-        qCWarning(lcSimpleAccountHelper) << __func__
-                                         << "Suitable account:" << account->uniqueIdentifier();
-    }
-
-    setSuitableAccounts(accounts);
-}
-
-void AccountHelper::setSuitableAccounts(const QList<Tp::AccountPtr> &accounts)
-{
-    for (const Tp::AccountPtr &trackedAccount : m_suitableAccounts) {
-        if (!accounts.contains(trackedAccount)) {
-            stopTrackingAccount(trackedAccount);
-        }
-    }
-    for (const Tp::AccountPtr &newAccount : accounts) {
-        if (!m_suitableAccounts.contains(newAccount)) {
-            trackAccount(newAccount);
-        }
-    }
-
-    m_suitableAccounts = accounts;
-    const auto comparator = [](const Tp::AccountPtr &left, const Tp::AccountPtr &right) {
-        return left->uniqueIdentifier() < right->uniqueIdentifier();
-    };
-    std::sort(m_suitableAccounts.begin(), m_suitableAccounts.end(), comparator);
-    updateModelData();
-}
-
-void AccountHelper::trackAccount(const Tp::AccountPtr &account)
-{
-    connect(account.data(), &Tp::Account::stateChanged,
-            this, &AccountHelper::onAccountStateChanged);
-    connect(account.data(), &Tp::Account::validityChanged,
-            this, &AccountHelper::onAccountValidityChanged);
-    connect(account.data(), &Tp::Account::requestedPresenceChanged,
-            this, &AccountHelper::onAccountRequestedPresenceChanged);
-    connect(account.data(), &Tp::Account::currentPresenceChanged,
-            this, &AccountHelper::onAccountCurrentPresenceChanged);
-}
-
-void AccountHelper::stopTrackingAccount(const Tp::AccountPtr &account)
-{
-    disconnect(account.data(), &Tp::Account::stateChanged,
-               this, &AccountHelper::onAccountStateChanged);
-    disconnect(account.data(), &Tp::Account::validityChanged,
-               this, &AccountHelper::onAccountValidityChanged);
-    disconnect(account.data(), &Tp::Account::requestedPresenceChanged,
-               this, &AccountHelper::onAccountRequestedPresenceChanged);
-    disconnect(account.data(), &Tp::Account::currentPresenceChanged,
-               this, &AccountHelper::onAccountCurrentPresenceChanged);
-}
-
-void AccountHelper::updateModelData()
-{
-    if (!m_accountsModel) {
-        return;
-    }
-
-    if (m_accountsModel->rowCount() > 0) {
-        m_accountsModel->removeRows(0, m_accountsModel->rowCount());
-    }
-    for (const Tp::AccountPtr &account : m_suitableAccounts) {
-        QList<QStandardItem *> rowItems;
-        rowItems << new QStandardItem();
-        rowItems << new QStandardItem();
-        rowItems << new QStandardItem();
-        for (int column = 0; column < rowItems.count(); ++column) {
-            updateModelItemData(rowItems.at(column), account, column);
-        }
-        m_accountsModel->appendRow(rowItems);
-    }
-}
-
-void AccountHelper::updateAccountData(const Tp::AccountPtr &account, AccountHelper::AccountModelColumn column)
-{
-    const int row = m_suitableAccounts.indexOf(account);
-    const int columnInt = columnToInt(column);
-    QStandardItem *item = m_accountsModel->item(row, columnInt);
-    updateModelItemData(item, account, columnInt);
-}
-
-void AccountHelper::updateModelItemData(QStandardItem *item, const Tp::AccountPtr &account, int columnHint)
-{
-    if (columnHint < 0) {
-        columnHint = item->column();
-    }
-    AccountModelColumn column = columnFromInt(columnHint);
-
-    switch (column) {
-    case AccountModelColumn::AccountId:
-        item->setText(account->uniqueIdentifier());
-        break;
-    case AccountModelColumn::AccountEnabled:
-        item->setText(account->isEnabled() ? tr("Enabled") : tr("Disabled"));
-        break;
-    case AccountModelColumn::AccountValid:
-        item->setText(account->isValidAccount() ? tr("Valid") : tr("Invalid"));
-        break;
-    case AccountModelColumn::ColumnsCount:
-    case AccountModelColumn::Invalid:
-        // Invalid
-        break;
-    }
 }
 
 void AccountHelper::activateCurrentAccount()
@@ -398,14 +306,6 @@ void AccountHelper::onAccountManagerReady(Tp::PendingOperation *operation)
     }
 
     qCDebug(lcSimpleAccountHelper) << "Account manager is ready.";
-    m_allAccounts = m_accountManager->allAccounts();
-    updateSuitableAccounts();
-}
-
-void AccountHelper::onNewAccount(const Tp::AccountPtr &account)
-{
-    m_allAccounts = m_accountManager->allAccounts();
-    updateSuitableAccounts();
 }
 
 void AccountHelper::onAccountCreated(Tp::PendingOperation *operation)
@@ -424,51 +324,29 @@ void AccountHelper::reValidateCurrentAccount()
     qCDebug(lcSimpleAccountHelper) << m_currentAccount->parameters();
 
     Tp::PendingOperation *operation = m_currentAccount->updateParameters(parameters, { });
+    operation->setObjectName("Account re-validation");
     connect(operation, &Tp::PendingOperation::finished,
-            this, &AccountHelper::onCurrentAccountParametersChanged);
-}
-
-void AccountHelper::onCurrentAccountParametersChanged(Tp::PendingOperation *operation)
-{
-    qCDebug(lcSimpleAccountHelper) << __func__;
-    if (!m_currentAccount->isValidAccount()) {
-        qCCritical(lcSimpleAccountHelper) << __func__ << "The account is still invalid.";
-
-        disconnectAccount(currentAccountId());
-        return;
-    }
-
-    if (!m_currentAccount->isEnabled()) {
-        enableCurrentAccount();
-        return;
-    }
-    onAccountSetEnableFinished();
-
-    activateCurrentAccount();
+            this, &AccountHelper::onAccountOperationFinished);
 }
 
 void AccountHelper::enableCurrentAccount()
 {
     qCDebug(lcSimpleAccountHelper) << __func__;
     Tp::PendingOperation *operation = m_currentAccount->setEnabled(true);
+    operation->setObjectName("Account setEnabled(true)");
     connect(operation, &Tp::PendingOperation::finished,
-            this, &AccountHelper::onAccountSetEnableFinished);
+            this, &AccountHelper::onAccountOperationFinished);
 }
 
-void AccountHelper::onAccountSetEnableFinished(Tp::PendingOperation *operation)
+void AccountHelper::onAccountOperationFinished(Tp::PendingOperation *operation)
 {
     qCDebug(lcSimpleAccountHelper) << __func__;
     if (operation) {
         if (operation->isError()) {
-            qCWarning(lcSimpleAccountHelper) << __func__
+            qCWarning(lcSimpleAccountHelper) << __func__ << operation
                                              << operation->errorName() << operation->errorMessage();
             return;
         }
-    }
-
-    if (!m_currentAccount->isEnabled()) {
-        qCWarning(lcSimpleAccountHelper) << __func__ << "The account is still disabled.";
-        return;
     }
 }
 
@@ -479,10 +357,6 @@ void AccountHelper::onAccountStateChanged()
         qCWarning(lcSimpleAccountHelper) << __func__ << "Invalid call";
         return;
     }
-
-    qCDebug(lcSimpleAccountHelper) << __func__ << account->uniqueIdentifier()
-                                   << "enabled:" << account->isEnabled();
-    updateAccountData(Tp::AccountPtr(account), AccountModelColumn::AccountEnabled);
 
     if (m_currentAccount == account) {
         activateCurrentAccount();
@@ -499,7 +373,6 @@ void AccountHelper::onAccountValidityChanged()
 
     qCDebug(lcSimpleAccountHelper) << __func__ << account->uniqueIdentifier()
                                    << "valid:" << account->isValidAccount();
-    updateAccountData(Tp::AccountPtr(account), AccountModelColumn::AccountValid);
 
     if (m_currentAccount == account) {
         activateCurrentAccount();
@@ -516,6 +389,8 @@ void AccountHelper::onAccountRequestedPresenceChanged()
 
     qCDebug(lcSimpleAccountHelper) << __func__ << account->uniqueIdentifier()
                                    << "requested presence:" << account->requestedPresence().type();
+
+    // There is no reaction on requested presense changed.
 }
 
 void AccountHelper::onAccountCurrentPresenceChanged()

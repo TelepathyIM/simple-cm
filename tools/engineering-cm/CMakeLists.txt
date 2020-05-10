@@ -6,6 +6,10 @@ find_package(Qt5 REQUIRED COMPONENTS Core DBus Gui Widgets Network Xml)
 set(cmTest_SRCS
     AccountHelper.cpp
     AccountHelper.hpp
+    AccountsModel.cpp
+    AccountsModel.hpp
+    HelperAccountsModel.cpp
+    HelperAccountsModel.hpp
     main.cpp
     MainWindow.cpp
     MainWindow.hpp

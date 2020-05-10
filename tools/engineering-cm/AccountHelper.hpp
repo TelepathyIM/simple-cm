@@ -12,6 +12,9 @@ QT_FORWARD_DECLARE_CLASS(QModelIndex)
 QT_FORWARD_DECLARE_CLASS(QStandardItem)
 QT_FORWARD_DECLARE_CLASS(QStandardItemModel)
 
+class AccountsModel;
+class HelperAccountsModel;
+
 class AccountHelper : public QObject
 {
     Q_OBJECT
@@ -29,23 +32,12 @@ public:
 
     explicit AccountHelper(QObject *parent = nullptr);
 
-    QAbstractItemModel *accountsModel();
-
-    enum class AccountModelColumn {
-        AccountId,
-        AccountEnabled,
-        AccountValid,
-        ColumnsCount,
-        Invalid,
-    };
+    AccountsModel *accountsModel();
 
     QString currentAccountId() const;
     AccountStatus currentAccountStatus() const;
 
     Tp::AccountPtr getAccountById(const QString &identifier) const;
-
-    static int columnToInt(AccountModelColumn column);
-    static AccountModelColumn columnFromInt(int columnInt);
 
 public slots:
     void start();
@@ -65,10 +57,8 @@ signals:
 
 protected slots:
     void onAccountManagerReady(Tp::PendingOperation *operation);
-    void onNewAccount(const Tp::AccountPtr &account);
     void onAccountCreated(Tp::PendingOperation *operation);
-    void onCurrentAccountParametersChanged(Tp::PendingOperation *operation);
-    void onAccountSetEnableFinished(Tp::PendingOperation *operation = nullptr);
+    void onAccountOperationFinished(Tp::PendingOperation *operation);
     void onAccountStateChanged();
     void onAccountValidityChanged();
     void onAccountRequestedPresenceChanged();
@@ -78,14 +68,10 @@ protected:
     void initAccountManager();
 
     void disconnectAccount(const Tp::AccountPtr &account);
+    void setCurrentAccount(const Tp::AccountPtr &account);
     void setCurrentAccountStatus(AccountStatus status);
-    void updateSuitableAccounts();
-    void setSuitableAccounts(const QList<Tp::AccountPtr> &accounts);
-    void trackAccount(const Tp::AccountPtr &account);
-    void stopTrackingAccount(const Tp::AccountPtr &account);
-    void updateModelData();
-    void updateAccountData(const Tp::AccountPtr &account, AccountModelColumn column);
-    void updateModelItemData(QStandardItem *item, const Tp::AccountPtr &account, int columnHint = -1);
+    // void updateAccountData(const Tp::AccountPtr &account, AccountModelColumn column);
+    // void updateModelItemData(QStandardItem *item, const Tp::AccountPtr &account, int columnHint = -1);
 
     void activateCurrentAccount();
     void reValidateCurrentAccount();
@@ -94,13 +80,11 @@ protected:
 
 protected:
     Tp::AccountManagerPtr m_accountManager;
-    QList<Tp::AccountPtr> m_allAccounts;
-    QList<Tp::AccountPtr> m_suitableAccounts;
     Tp::AccountPtr m_currentAccount;
     AccountStatus m_accountStatus = AccountStatus::NoAccount;
     QString m_managerName;
     QString m_protocolName;
-    QStandardItemModel *m_accountsModel = nullptr;
+    HelperAccountsModel *m_accountsModel = nullptr;
 };
 
 #endif // SIMPLE_ACCOUNT_HELPER_HPP

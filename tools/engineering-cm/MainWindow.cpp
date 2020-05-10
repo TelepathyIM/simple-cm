@@ -4,6 +4,7 @@
 #include "CContactsModel.hpp"
 #include "CComboBoxDelegate.hpp"
 #include "PresetsLoader.hpp"
+#include "AccountsModel.hpp"
 
 #ifndef SIMPLECM_ENABLE_LOWLEVEL_API
 #define SIMPLECM_ENABLE_LOWLEVEL_API
@@ -66,8 +67,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->messagingSenderName->setCompleter(contactsCompleter);
     ui->messagingSenderName->installEventFilter(this);
 
-    ui->accountsView->setModel(m_accountHelper->accountsModel());
-    ui->accountsView->setColumnWidth(0, 240);
+    AccountsModel *accountsModel = m_accountHelper->accountsModel();
+    accountsModel->setColumns({
+                                  AccountsModel::Column::UniqueIdentifier,
+                                  AccountsModel::Column::Enabled,
+                                  AccountsModel::Column::Valid,
+                              });
+    ui->accountsView->setModel(accountsModel);
+    ui->accountsView->setColumnWidth(0, 280);
     connect(ui->accountsView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &MainWindow::updateAccountControls);
 
@@ -268,13 +275,8 @@ QString MainWindow::getSelectedAccount() const
 
 QString MainWindow::getAccountId(const QModelIndex &accountIndex) const
 {
-    const int column = AccountHelper::columnToInt(AccountHelper::AccountModelColumn::AccountId);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 11, 0)
-    QModelIndex accountIdIndex = accountIndex.siblingAtColumn(column);
-#else
-    QModelIndex accountIdIndex = accountIndex.sibling(accountIndex.row(), column);
-#endif
-    return accountIdIndex.data().toString();
+    return m_accountHelper->accountsModel()->getData(accountIndex.row(),
+                                                     AccountsModel::Role::UniqueIdentifier).toString();
 }
 
 void MainWindow::on_addAccount_clicked()
