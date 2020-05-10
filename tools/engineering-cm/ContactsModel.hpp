@@ -1,5 +1,5 @@
-#ifndef CONTACTLISTMODEL_H
-#define CONTACTLISTMODEL_H
+#ifndef CONTACTS_MODEL_HPP
+#define CONTACTS_MODEL_HPP
 
 #include <QAbstractTableModel>
 #include <QList>
@@ -15,7 +15,7 @@ class Service;
 
 } // SimpleCM
 
-class CContactsModel : public QAbstractTableModel
+class ContactsModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
@@ -25,7 +25,7 @@ public:
         ColumnsCount
     };
 
-    explicit CContactsModel(QObject *parent = 0);
+    explicit ContactsModel(QObject *parent = nullptr);
     void setService(SimpleCM::Service *service);
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
@@ -39,28 +39,11 @@ public:
 
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
-signals:
-
-public slots:
-
 private:
     int addContact(const QString identifier);
 
     SimpleCM::Service *m_service = nullptr;
     QList<SContact> m_contacts;
-
 };
 
-inline int CContactsModel::columnCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent)
-    return ColumnsCount;
-}
-
-inline int CContactsModel::rowCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent)
-    return m_contacts.count();
-}
-
-#endif // CONTACTLISTMODEL_H
+#endif // CONTACTS_MODEL_HPP

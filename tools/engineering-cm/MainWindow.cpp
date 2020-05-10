@@ -1,10 +1,10 @@
 #include "MainWindow.hpp"
 #include "ui_MainWindow.h"
 
-#include "CContactsModel.hpp"
 #include "CComboBoxDelegate.hpp"
 #include "PresetsLoader.hpp"
 #include "AccountsModel.hpp"
+#include "ContactsModel.hpp"
 
 #ifndef SIMPLECM_ENABLE_LOWLEVEL_API
 #define SIMPLECM_ENABLE_LOWLEVEL_API
@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_accountHelper, &AccountHelper::currentAccountStatusChanged,
             this, &MainWindow::onCurrentAccountStatusChanged);
 
-    m_contactsModel = new CContactsModel(this);
+    m_contactsModel = new ContactsModel(this);
     ui->contactsView->setModel(m_contactsModel);
 
     ui->contactsView->setItemDelegateForColumn(1, new CComboBoxDelegate(this));
@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QCompleter *contactsCompleter = new QCompleter(this);
     contactsCompleter->setModel(m_contactsModel);
-    contactsCompleter->setCompletionColumn(CContactsModel::Columns::Identifier);
+    contactsCompleter->setCompletionColumn(ContactsModel::Columns::Identifier);
     ui->messagingSenderName->setCompleter(contactsCompleter);
     ui->messagingSenderName->installEventFilter(this);
 

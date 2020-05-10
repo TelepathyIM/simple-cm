@@ -8,6 +8,8 @@ set(cmTest_SRCS
     AccountHelper.hpp
     AccountsModel.cpp
     AccountsModel.hpp
+    ContactsModel.cpp
+    ContactsModel.hpp
     HelperAccountsModel.cpp
     HelperAccountsModel.hpp
     main.cpp
@@ -19,8 +21,6 @@ set(cmTest_SRCS
     PresetsLoader.hpp
     CComboBoxDelegate.cpp
     CComboBoxDelegate.hpp
-    CContactsModel.cpp
-    CContactsModel.hpp
 )
 
 add_executable(engineering-connection-manager-qt${QT_VERSION_MAJOR} ${cmTest_SRCS})

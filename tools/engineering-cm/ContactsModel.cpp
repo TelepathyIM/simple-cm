@@ -1,19 +1,30 @@
-#include "CContactsModel.hpp"
+#include "ContactsModel.hpp"
 
 #include <SimpleCM/Service>
 
-CContactsModel::CContactsModel(QObject *parent) :
-    QAbstractTableModel(parent),
-    m_service(0)
+ContactsModel::ContactsModel(QObject *parent) :
+    QAbstractTableModel(parent)
 {
 }
 
-void CContactsModel::setService(SimpleCM::Service *service)
+void ContactsModel::setService(SimpleCM::Service *service)
 {
     m_service = service;
 }
 
-QVariant CContactsModel::data(const QModelIndex &index, int role) const
+int ContactsModel::columnCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent)
+    return ColumnsCount;
+}
+
+int ContactsModel::rowCount(const QModelIndex &parent) const
+{
+    Q_UNUSED(parent)
+    return m_contacts.count();
+}
+
+QVariant ContactsModel::data(const QModelIndex &index, int role) const
 {
     if ((role != Qt::DisplayRole) && (role != Qt::EditRole)) {
         return QVariant();
@@ -38,7 +49,7 @@ QVariant CContactsModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-QVariant CContactsModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant ContactsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation != Qt::Horizontal) {
         return QVariant();
@@ -60,7 +71,7 @@ QVariant CContactsModel::headerData(int section, Qt::Orientation orientation, in
     return QVariant();
 }
 
-bool CContactsModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool ContactsModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!m_service) {
         return false;
@@ -95,7 +106,7 @@ bool CContactsModel::setData(const QModelIndex &index, const QVariant &value, in
     }
 }
 
-void CContactsModel::ensureContact(const QString &identifier)
+void ContactsModel::ensureContact(const QString &identifier)
 {
     for (int i = 0; i < m_contacts.count(); ++i) {
         if (m_contacts.at(i).identifier == identifier) {
@@ -106,7 +117,7 @@ void CContactsModel::ensureContact(const QString &identifier)
     addContact(identifier);
 }
 
-Qt::ItemFlags CContactsModel::flags(const QModelIndex &index) const
+Qt::ItemFlags ContactsModel::flags(const QModelIndex &index) const
 {
     switch(index.column()) {
     case Identifier:
@@ -120,7 +131,7 @@ Qt::ItemFlags CContactsModel::flags(const QModelIndex &index) const
     return Qt::NoItemFlags;
 }
 
-int CContactsModel::addContact(const QString identifier)
+int ContactsModel::addContact(const QString identifier)
 {
     SContact contact;
     contact.identifier = identifier;

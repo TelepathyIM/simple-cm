@@ -19,7 +19,7 @@ class Message;
 
 class SimpleProtocol;
 
-class CContactsModel;
+class ContactsModel;
 
 class MainWindow : public QMainWindow
 {
@@ -70,7 +70,7 @@ private:
 
     QList<ManagerPreset> m_presets;
     SimpleCM::Service *m_service = nullptr;
-    CContactsModel *m_contactsModel = nullptr;
+    ContactsModel *m_contactsModel = nullptr;
     AccountHelper *m_accountHelper = nullptr;
 };
 
