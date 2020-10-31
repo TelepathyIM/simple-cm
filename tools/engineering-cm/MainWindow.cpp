@@ -66,6 +66,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->accountsView->setColumnWidth(0, 240);
     connect(ui->accountsView->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, &MainWindow::updateAccountControls);
+    connect(ui->sendMessageButton, &QPushButton::clicked,
+            this, &MainWindow::sendPlainMessage);
+    connect(ui->messagingSendJson, &QPushButton::clicked,
+            this, &MainWindow::sendJsonMessage);
 
     setupPresets();
     updateTabsState();
@@ -106,7 +110,7 @@ void MainWindow::on_contactListAddContact_clicked()
     ui->addContactNameLineEdit->clear();
 }
 
-void MainWindow::on_sendMessageButton_clicked()
+void MainWindow::sendPlainMessage()
 {
     if (!m_service->isRunning()) {
         return;
@@ -120,7 +124,7 @@ void MainWindow::on_sendMessageButton_clicked()
     addMessage(sender, message);
 }
 
-void MainWindow::on_messagingSendJson_clicked()
+void MainWindow::sendJsonMessage()
 {
     if (!m_service->isRunning()) {
         return;

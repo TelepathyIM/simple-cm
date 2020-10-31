@@ -33,8 +33,8 @@ private slots:
     void on_registerButton_clicked(bool checked);
 
     void on_contactListAddContact_clicked();
-    void on_sendMessageButton_clicked();
-    void on_messagingSendJson_clicked();
+    void sendPlainMessage();
+    void sendJsonMessage();
 
     void onNewMessage(const SimpleCM::Message &message);
     void addMessage(const QString &targetContact, const QString &text);
