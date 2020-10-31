@@ -61,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent) :
     contactsCompleter->setCompletionColumn(CContactsModel::Columns::Identifier);
     ui->messagingSenderName->setCompleter(contactsCompleter);
     ui->messagingSenderName->installEventFilter(this);
+    ui->messageEdit->installEventFilter(this);
 
     ui->accountsView->setModel(m_accountHelper->accountsModel());
     ui->accountsView->setColumnWidth(0, 240);
@@ -327,6 +328,19 @@ bool MainWindow::eventFilter(QObject *watched, QEvent *event)
                 ui->messagingSenderName->completer()->complete();
                 event->accept();
                 return true;
+            }
+        }
+    } else if (watched == ui->messageEdit) {
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+            if (keyEvent->key() == Qt::Key_Enter || keyEvent->key() == Qt::Key_Return) {
+                if (keyEvent->modifiers() & (Qt::ShiftModifier | Qt::ControlModifier)) {
+                    sendPlainMessage();
+                    return true;
+                } else if (keyEvent->modifiers() & Qt::AltModifier) {
+                    sendJsonMessage();
+                    return true;
+                }
             }
         }
     }
