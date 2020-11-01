@@ -7,6 +7,7 @@
 struct SContact {
     QString identifier;
     QString presence;
+    uint handle = 0;
 };
 
 namespace SimpleCM {
@@ -21,6 +22,7 @@ class CContactsModel : public QAbstractTableModel
 public:
     enum class Column {
         Identifier,
+        Handle,
         Presence,
         Count,
         Invalid

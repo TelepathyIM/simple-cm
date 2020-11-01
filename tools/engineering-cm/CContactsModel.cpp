@@ -54,6 +54,8 @@ QVariant CContactsModel::data(const QModelIndex &index, int role) const
     switch (column) {
     case Column::Identifier:
         return contact.identifier;
+    case Column::Handle:
+        return contact.handle;
     case Column::Presence:
         return contact.presence;
     case Column::Count:
@@ -82,6 +84,8 @@ QVariant CContactsModel::headerData(int section, Qt::Orientation orientation, in
     switch (column) {
     case Column::Identifier:
         return tr("Identifier");
+    case Column::Handle:
+        return tr("Handle");
     case Column::Presence:
         return tr("Presence");
     case Column::Count:
@@ -162,13 +166,12 @@ int CContactsModel::addContact(const QString identifier)
     SContact contact;
     contact.identifier = identifier;
     contact.presence = "unknown";
+    contact.handle = m_service->addContact(contact.identifier);
 
     int newContactIndex = m_contacts.count();
     beginInsertRows(QModelIndex(), newContactIndex, newContactIndex);
     m_contacts.append(contact);
     endInsertRows();
-
-    m_service->addContact(contact.identifier);
 
     return newContactIndex;
 }
