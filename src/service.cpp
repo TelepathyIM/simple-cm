@@ -134,10 +134,10 @@ void Service::setProtocolName(const QString &name)
     d->protocolName = name;
 }
 
-void Service::addContact(const QString &contact)
+quint32 Service::addContact(const QString &contact)
 {
     Q_D(Service);
-    d->protocol->addContact(contact);
+    return d->protocol->addContact(contact);
 }
 
 void Service::setContactList(const QStringList &list)

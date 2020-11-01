@@ -72,9 +72,9 @@ void SimpleProtocol::addMessage(QString sender, QString message)
     emit receiveMessage(sender, message);
 }
 
-void SimpleProtocol::addContact(const QString &contact)
+quint32 SimpleProtocol::addContact(const QString &contact)
 {
-    emit addContactRequested(contact);
+    return m_connection->ensureContact(contact);
 }
 
 void SimpleProtocol::setContactList(QStringList list)
@@ -93,8 +93,6 @@ void SimpleProtocol::connectionCreatedEvent(SimpleConnectionPtr connection)
             connection.data(), &SimpleConnection::receiveMessage);
     connect(this, &SimpleProtocol::contactsListChanged,
             connection.data(), &SimpleConnection::setContactList);
-    connect(this, &SimpleProtocol::addContactRequested ,
-            connection.data(), &SimpleConnection::addContact);
     connect(this, &SimpleProtocol::contactPresenceChanged,
             connection.data(), &SimpleConnection::setContactPresence);
 

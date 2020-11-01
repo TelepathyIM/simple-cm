@@ -38,7 +38,7 @@ public slots:
     void setManagerName(const QString &name);
     void setProtocolName(const QString &name);
 
-    void addContact(const QString &contact);
+    quint32 addContact(const QString &contact);
     void setContactList(const QStringList &list);
     void setContactPresence(const QString &identifier, const QString &presence);
 

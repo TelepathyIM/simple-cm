@@ -46,7 +46,7 @@ public:
 
 public slots:
     void addMessage(QString sender, QString message);
-    void addContact(const QString &contact);
+    quint32 addContact(const QString &contact);
     void setContactList(QStringList list);
     void setContactPresence(const QString &identifier, const QString &presence);
 
