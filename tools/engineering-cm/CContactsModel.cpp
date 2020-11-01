@@ -26,11 +26,13 @@ QVariant CContactsModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
+    const SContact &contact = m_contacts.at(contactIndex);
+
     switch (section) {
     case Identifier:
-        return m_contacts.at(contactIndex).identifier;
+        return contact.identifier;
     case Presence:
-        return m_contacts.at(contactIndex).presence;
+        return contact.presence;
     default:
         break;
     }
