@@ -349,6 +349,8 @@ void AccountHelper::onAccountSetEnableFinished(Tp::PendingOperation *operation)
         qCWarning(lcSimpleAccountHelper) << __func__ << "The account is still disabled.";
         return;
     }
+
+    onAccountEnabled();
 }
 
 void AccountHelper::onAccountStateChanged()
