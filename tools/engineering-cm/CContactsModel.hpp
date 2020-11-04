@@ -19,14 +19,18 @@ class CContactsModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    enum Columns {
+    enum class Column {
         Identifier,
         Presence,
-        ColumnsCount
+        Count,
+        Invalid
     };
 
     explicit CContactsModel(QObject *parent = 0);
     void setService(SimpleCM::Service *service);
+
+    QVector<Column> columns() const;
+    void setColumns(const QVector<Column> &columns);
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -45,17 +49,13 @@ public slots:
 
 private:
     int addContact(const QString identifier);
+    Column intToColumn(int column) const;
 
     SimpleCM::Service *m_service = nullptr;
-    QList<SContact> m_contacts;
+    QVector<Column> m_columns;
+    QVector<SContact> m_contacts;
 
 };
-
-inline int CContactsModel::columnCount(const QModelIndex &parent) const
-{
-    Q_UNUSED(parent)
-    return ColumnsCount;
-}
 
 inline int CContactsModel::rowCount(const QModelIndex &parent) const
 {

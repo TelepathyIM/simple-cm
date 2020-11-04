@@ -50,15 +50,21 @@ MainWindow::MainWindow(QWidget *parent) :
             this, &MainWindow::onCurrentAccountStatusChanged);
 
     m_contactsModel = new CContactsModel(this);
-    ui->contactsView->setModel(m_contactsModel);
-
-    ui->contactsView->setItemDelegateForColumn(1, new CComboBoxDelegate(this));
-
+    m_contactsModel->setColumns({
+                                    CContactsModel::Column::Identifier,
+                                    CContactsModel::Column::Presence,
+                                });
     m_contactsModel->setService(m_service);
+
+    ui->contactsView->setModel(m_contactsModel);
+    int presenceColumn = m_contactsModel->columns().indexOf(CContactsModel::Column::Presence);
+    ui->contactsView->setItemDelegateForColumn(presenceColumn, new CComboBoxDelegate(this));
 
     QCompleter *contactsCompleter = new QCompleter(this);
     contactsCompleter->setModel(m_contactsModel);
-    contactsCompleter->setCompletionColumn(CContactsModel::Columns::Identifier);
+    int identifierColumn = m_contactsModel->columns().indexOf(CContactsModel::Column::Identifier);
+    contactsCompleter->setCompletionColumn(identifierColumn);
+
     ui->messagingSenderName->setCompleter(contactsCompleter);
     ui->messagingSenderName->installEventFilter(this);
     ui->messageEdit->installEventFilter(this);

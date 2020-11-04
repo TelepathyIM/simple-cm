@@ -13,13 +13,36 @@ void CContactsModel::setService(SimpleCM::Service *service)
     m_service = service;
 }
 
+QVector<CContactsModel::Column> CContactsModel::columns() const
+{
+    return m_columns;
+}
+
+void CContactsModel::setColumns(const QVector<Column> &columns)
+{
+    m_columns = columns;
+}
+
+int CContactsModel::columnCount(const QModelIndex &parent) const
+{
+    if (!parent.isValid()) {
+        return m_columns.count();
+    } else {
+        return 0;
+    }
+}
+
 QVariant CContactsModel::data(const QModelIndex &index, int role) const
 {
     if ((role != Qt::DisplayRole) && (role != Qt::EditRole)) {
         return QVariant();
     }
 
-    int section = index.column();
+    const Column column = intToColumn(index.column());
+    if (column == Column::Invalid) {
+        return QVariant();
+    }
+
     int contactIndex = index.row();
 
     if ((contactIndex < 0) || (contactIndex > rowCount())) {
@@ -28,12 +51,13 @@ QVariant CContactsModel::data(const QModelIndex &index, int role) const
 
     const SContact &contact = m_contacts.at(contactIndex);
 
-    switch (section) {
-    case Identifier:
+    switch (column) {
+    case Column::Identifier:
         return contact.identifier;
-    case Presence:
+    case Column::Presence:
         return contact.presence;
-    default:
+    case Column::Count:
+    case Column::Invalid:
         break;
     }
 
@@ -50,12 +74,18 @@ QVariant CContactsModel::headerData(int section, Qt::Orientation orientation, in
         return QVariant();
     }
 
-    switch (section) {
-    case Identifier:
+    const Column column = intToColumn(section);
+    if (column == Column::Invalid) {
+        return QVariant();
+    }
+
+    switch (column) {
+    case Column::Identifier:
         return tr("Identifier");
-    case Presence:
+    case Column::Presence:
         return tr("Presence");
-    default:
+    case Column::Count:
+    case Column::Invalid:
         break;
     }
 
@@ -72,7 +102,11 @@ bool CContactsModel::setData(const QModelIndex &index, const QVariant &value, in
         return false;
     }
 
-    int section = index.column();
+    const Column column = intToColumn(index.column());
+    if (column == Column::Invalid) {
+        return false;
+    }
+
     int contactIndex = index.row();
 
     if ((contactIndex < 0) || (contactIndex > rowCount())) {
@@ -81,8 +115,8 @@ bool CContactsModel::setData(const QModelIndex &index, const QVariant &value, in
 
     QString strValue = value.toString();
 
-    switch(section) {
-    case Presence:
+    switch(column) {
+    case Column::Presence:
         if ((strValue != "available")
                 && (strValue != "unknown")
                 && (strValue != "offline")) {
@@ -110,10 +144,11 @@ void CContactsModel::ensureContact(const QString &identifier)
 
 Qt::ItemFlags CContactsModel::flags(const QModelIndex &index) const
 {
-    switch(index.column()) {
-    case Identifier:
+    const Column column = intToColumn(index.column());
+    switch(column) {
+    case Column::Identifier:
         return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-    case Presence:
+    case Column::Presence:
         return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
     default:
         QAbstractTableModel::flags(index);
@@ -136,4 +171,12 @@ int CContactsModel::addContact(const QString identifier)
     m_service->addContact(contact.identifier);
 
     return newContactIndex;
+}
+
+CContactsModel::Column CContactsModel::intToColumn(int columnIndex) const
+{
+    if ((columnIndex < 0) || (columnIndex >= m_columns.count())) {
+        return Column::Invalid;
+    }
+    return m_columns.at(columnIndex);
 }
